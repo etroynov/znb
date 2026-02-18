@@ -7,7 +7,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang="ru">
       <head>
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-64ZCEW9NXW"
+          src="https://www.googletagmanager.com/gtag/js?id=G-SP23XSNY6E"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -15,7 +15,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-64ZCEW9NXW');
+            gtag('config', 'G-SP23XSNY6E');
           `}
         </Script>
       </head>
@@ -23,7 +23,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <header className="border-b border-gray-300">
           <div className="container mx-auto py-4">
             <Link href="/" className="block text-3xl">
-              Кройка и шитье
+              Jubilerzy
             </Link>
           </div>
         </header>
