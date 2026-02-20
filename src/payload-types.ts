@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    organizations: Organization;
     posts: Post;
     pages: Page;
     tags: Tag;
@@ -81,6 +82,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
@@ -202,6 +204,47 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organizations".
+ */
+export interface Organization {
+  id: string;
+  name?: string | null;
+  type?: ('studio' | 'shop') | null;
+  logo?: (string | null) | Media;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  contacts?:
+    | {
+        type?: ('website' | 'phone' | 'email') | null;
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  socials?:
+    | {
+        name?: ('instagram' | 'facebook') | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -315,6 +358,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'organizations';
+        value: string | Organization;
       } | null)
     | ({
         relationTo: 'posts';
@@ -455,6 +502,32 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organizations_select".
+ */
+export interface OrganizationsSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  logo?: T;
+  content?: T;
+  contacts?:
+    | T
+    | {
+        type?: T;
+        value?: T;
+        id?: T;
+      };
+  socials?:
+    | T
+    | {
+        name?: T;
+        link?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
