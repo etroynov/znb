@@ -16,10 +16,14 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      <div className="flex flex-col gap-4">
+    <div className="grid">
+      <div className="grid grid-cols-4 gap-4">
         {organizations.map((m) => (
-          <div>{m.name}</div>
+          <section className="border p-4 rounded-lg">
+            <header>
+              <h3>{m.name}</h3>
+            </header>
+          </section>
         ))}
       </div>
 
