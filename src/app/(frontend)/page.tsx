@@ -2,8 +2,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { getPayload } from "payload";
 import config from "@/payload.config";
-
-export const dynamic = "force-dynamic";
+import { RichText } from "@payloadcms/richtext-lexical/react";
 
 export default async function HomePage() {
   const payloadConfig = await config;
@@ -19,10 +18,16 @@ export default async function HomePage() {
     <div className="grid">
       <div className="grid grid-cols-4 gap-4">
         {organizations.map((m) => (
-          <section className="border p-4 rounded-lg">
+          <section key={m.id} className="border p-4 rounded-lg">
             <header>
               <h3>{m.name}</h3>
             </header>
+
+            {m.content ? (
+              <div>
+                <RichText data={m.content} />
+              </div>
+            ) : null}
           </section>
         ))}
       </div>

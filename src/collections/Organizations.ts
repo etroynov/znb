@@ -10,6 +10,9 @@ export const Organizations: CollectionConfig = {
     {
       name: "type",
       type: "select",
+      admin: {
+        position: "sidebar",
+      },
       options: [
         {
           label: "Studio",
@@ -25,6 +28,9 @@ export const Organizations: CollectionConfig = {
       name: "logo",
       type: "relationship",
       relationTo: "media",
+      admin: {
+        position: "sidebar",
+      },
     },
     {
       name: "content",
