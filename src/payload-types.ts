@@ -64,10 +64,12 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    jewelers: JewelerAuthOperations;
   };
   blocks: {};
   collections: {
     users: User;
+    jewelers: Jeweler;
     media: Media;
     organizations: Organization;
     posts: Post;
@@ -81,6 +83,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    jewelers: JewelersSelect<false> | JewelersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -94,17 +97,38 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ru' | 'pl') | ('ru' | 'pl')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | 'pl' | 'pl'[];
   globals: {};
   globalsSelect: {};
-  locale: 'ru' | 'pl';
-  user: User;
+  locale: 'pl';
+  widgets: {
+    collections: CollectionsWidget;
+  };
+  user: User | Jeweler;
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface JewelerAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -130,6 +154,7 @@ export interface User {
   id: string;
   firstName?: string | null;
   lastName?: string | null;
+  role: string;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -148,6 +173,34 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jewelers".
+ */
+export interface Jeweler {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'jewelers';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -208,7 +261,10 @@ export interface Media {
  */
 export interface Organization {
   id: string;
-  name?: string | null;
+  name: string;
+  slug: string;
+  status?: ('draft' | 'pending' | 'approved' | 'rejected') | null;
+  owner?: (string | null) | Jeweler;
   type?: ('studio' | 'shop') | null;
   logo?: (string | null) | Media;
   content?: {
@@ -226,6 +282,18 @@ export interface Organization {
     };
     [k: string]: unknown;
   } | null;
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  city?: string | null;
+  address?: string | null;
+  location?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
   contacts?:
     | {
         type?: ('website' | 'phone' | 'email') | null;
@@ -235,8 +303,15 @@ export interface Organization {
     | null;
   socials?:
     | {
-        name?: ('instagram' | 'facebook') | null;
+        name?: string | null;
         link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  services?:
+    | {
+        name?: string | null;
+        price?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -356,6 +431,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'jewelers';
+        value: string | Jeweler;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -376,10 +455,15 @@ export interface PayloadLockedDocument {
         value: string | Tag;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'jewelers';
+        value: string | Jeweler;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -389,10 +473,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'jewelers';
+        value: string | Jeweler;
+      };
   key?: string | null;
   value?:
     | {
@@ -424,6 +513,32 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jewelers_select".
+ */
+export interface JewelersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -509,9 +624,26 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface OrganizationsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
+  status?: T;
+  owner?: T;
   type?: T;
   logo?: T;
   content?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  city?: T;
+  address?: T;
+  location?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
   contacts?:
     | T
     | {
@@ -524,6 +656,13 @@ export interface OrganizationsSelect<T extends boolean = true> {
     | {
         name?: T;
         link?: T;
+        id?: T;
+      };
+  services?:
+    | T
+    | {
+        name?: T;
+        price?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -616,6 +755,16 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

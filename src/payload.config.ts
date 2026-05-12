@@ -20,6 +20,7 @@ import { Pages } from "./collections/Pages";
 import { Posts } from "./collections/Posts";
 import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
+import { Jewelers } from "./collections/Jewelers";
 import { Organizations } from "./collections/Organizations";
 
 const filename = fileURLToPath(import.meta.url);
@@ -29,15 +30,11 @@ export default buildConfig({
   localization: {
     locales: [
       {
-        label: "Русский",
-        code: "ru",
-      },
-      {
-        label: "Polish",
+        label: "Polski",
         code: "pl",
       },
     ],
-    defaultLocale: "ru",
+    defaultLocale: "pl",
   },
   admin: {
     user: Users.slug,
@@ -45,7 +42,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Organizations, Posts, Pages, Tags],
+  collections: [Users, Jewelers, Media, Organizations, Posts, Pages, Tags],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
