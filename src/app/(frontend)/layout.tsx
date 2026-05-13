@@ -35,6 +35,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
               <Link href="/moje-konto" className="hover:underline">
                 My profile
               </Link>
+              <Link href="/wyloguj" className="hover:underline">
+                Log out
+              </Link>
             </nav>
           </div>
         </header>

@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: org.name,
     description: `${org.name} — ${org.city || "jubiler"}. Znajdź jubilera w Polsce.`,
+    robots: { index: true, follow: true },
     openGraph: {
       title: org.name,
       description: `${org.name} — ${org.city || "jubiler"} w katalogu Znajdź Jubilera.`,
@@ -64,8 +65,44 @@ export default async function JewelerPage({ params }: Props) {
   const emailContact = org.contacts?.find((c) => c.type === "email");
   const websiteContact = org.contacts?.find((c) => c.type === "website");
 
+  const schemaMarkup = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: org.name,
+    ...(logoUrl ? { image: logoUrl } : {}),
+    ...(phoneContact?.value ? { telephone: phoneContact.value } : {}),
+    ...(emailContact?.value ? { email: emailContact.value } : {}),
+    ...(websiteContact?.value ? { url: websiteContact.value } : {}),
+    ...(org.city || org.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            ...(org.address ? { streetAddress: org.address } : {}),
+            ...(org.city ? { addressLocality: org.city } : {}),
+            addressCountry: "PL",
+          },
+        }
+      : {}),
+    ...(org.location?.lat && org.location?.lng
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: org.location.lat,
+            longitude: org.location.lng,
+          },
+        }
+      : {}),
+    ...(org.services?.filter((s) => s.name).length
+      ? { makesOffer: org.services.filter((s) => s.name).map((s) => ({ "@type": "Offer", name: s.name, ...(s.price ? { price: s.price, priceCurrency: "PLN" } : {}) })) }
+      : {}),
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+      />
       {/* Header */}
       <header className="flex items-start gap-6 mb-8">
         {logoUrl ? (
@@ -256,6 +293,6 @@ export default async function JewelerPage({ params }: Props) {
           ) : null}
         </aside>
       </div>
-    </div>
+    </>
   );
 }

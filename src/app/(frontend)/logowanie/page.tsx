@@ -71,6 +71,11 @@ export default function LoginPage() {
             required
             className="w-full border rounded-lg px-3 py-2"
           />
+          <div className="text-right mt-1">
+            <span className="text-xs text-gray-400">
+              Forgot password? Contact admin
+            </span>
+          </div>
         </div>
 
         {error ? (
