@@ -6,6 +6,8 @@ import { getAllEvents } from '@/services/events';
 import type { EventType } from '@/utils/eventTypes';
 import { EVENT_TYPE_LABELS } from '@/utils/eventTypes';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Wydarzenia jubilerskie — Znajdź Jubilera',
   description:
