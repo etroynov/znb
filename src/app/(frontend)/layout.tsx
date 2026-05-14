@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Script from 'next/script';
+import { Suspense } from 'react';
 import './global.css';
 import { HeaderSearch } from './_components/HeaderSearch';
 
@@ -42,7 +43,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             </Link>
 
             <div className="flex-1 max-w-xs">
-              <HeaderSearch />
+              <Suspense fallback={null}>
+                <HeaderSearch />
+              </Suspense>
             </div>
 
             <nav className="flex items-center gap-4 text-sm shrink-0">
