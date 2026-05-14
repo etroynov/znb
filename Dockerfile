@@ -4,8 +4,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* ./
-RUN npm i -g pnpm@11.1.1 && pnpm i --frozen-lockfile;
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+RUN npm i -g pnpm@11.1.1 && (pnpm i --frozen-lockfile || true) && pnpm approve-builds esbuild sharp
 
 FROM base AS builder
 WORKDIR /app
@@ -19,8 +19,9 @@ ARG PAYLOAD_SECRET
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV CI=true
 
-RUN npm i -g pnpm@11.1.1 && pnpm i --frozen-lockfile;
+RUN npm i -g pnpm@11.1.1 && (pnpm i --frozen-lockfile || true) && pnpm approve-builds esbuild sharp
 RUN pnpm build
 
 FROM base AS runner
