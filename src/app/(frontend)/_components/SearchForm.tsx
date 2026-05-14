@@ -1,32 +1,34 @@
-"use client";
+'use client';
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import type { OrganizationType } from '@/utils/organizationTypes';
+import { ORGANIZATION_TYPE_LABELS } from '@/utils/organizationTypes';
 
 export function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentSearch = searchParams.get("search") || "";
-  const currentCity = searchParams.get("city") || "";
-  const currentType = searchParams.get("type") || "";
+  const currentSearch = searchParams.get('search') || '';
+  const currentCity = searchParams.get('city') || '';
+  const currentType = searchParams.get('type') || '';
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const params = new URLSearchParams();
-    const search = form.get("search")?.toString().trim();
-    const city = form.get("city")?.toString().trim();
-    const type = form.get("type")?.toString();
-    if (search) params.set("search", search);
-    if (city) params.set("city", city);
-    if (type) params.set("type", type);
+    const search = form.get('search')?.toString().trim();
+    const city = form.get('city')?.toString().trim();
+    const type = form.get('type')?.toString();
+    if (search) params.set('search', search);
+    if (city) params.set('city', city);
+    if (type) params.set('type', type);
     const qs = params.toString();
-    router.push(qs ? `/?${qs}` : "/");
+    router.push(qs ? `/?${qs}` : '/');
   }
 
   function clearFilters() {
-    router.push("/");
+    router.push('/');
   }
 
   const hasFilters = currentSearch || currentCity || currentType;
@@ -42,14 +44,14 @@ export function SearchForm() {
           <input
             name="search"
             defaultValue={currentSearch}
-            placeholder="Search by name..."
+            placeholder="Szukaj po nazwie..."
             className="w-full border rounded-lg pl-9 pr-3 py-2"
           />
         </div>
         <input
           name="city"
           defaultValue={currentCity}
-          placeholder="City..."
+          placeholder="Miasto..."
           className="border rounded-lg px-3 py-2 w-40"
         />
         <select
@@ -57,15 +59,23 @@ export function SearchForm() {
           defaultValue={currentType}
           className="border rounded-lg px-3 py-2"
         >
-          <option value="">All types</option>
-          <option value="studio">Studio</option>
-          <option value="shop">Shop</option>
+          <option value="">Wszystkie typy</option>
+          {(
+            Object.entries(ORGANIZATION_TYPE_LABELS) as [
+              OrganizationType,
+              string,
+            ][]
+          ).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
         </select>
         <button
           type="submit"
           className="bg-black text-white px-4 py-2 rounded-lg text-sm"
         >
-          Search
+          Szukaj
         </button>
         {hasFilters ? (
           <button
@@ -73,7 +83,7 @@ export function SearchForm() {
             onClick={clearFilters}
             className="flex items-center gap-1 text-sm text-gray-500 px-3 py-2"
           >
-            <X size={16} /> Clear
+            <X size={16} /> Wyczyść
           </button>
         ) : null}
       </div>

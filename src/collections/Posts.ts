@@ -20,7 +20,7 @@ export const Posts: CollectionConfig = {
       type: 'textarea',
       localized: true,
       admin: {
-        description: 'Краткое описание поста для SEO',
+        description: 'Short description for SEO',
       },
     },
     {

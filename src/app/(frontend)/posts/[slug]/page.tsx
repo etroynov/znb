@@ -13,18 +13,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) {
     return {
-      title: 'Страница не найдена',
+      title: 'Nie znaleziono strony',
     };
   }
 
   const description =
-    post.excerpt || post.meta?.description || `Статья: ${post.name}`;
+    post.excerpt || post.meta?.description || `Post: ${post.name}`;
 
   return {
-    title: post.name || 'Статья',
+    title: post.name || 'Post',
     description: description,
     openGraph: {
-      title: post.name || 'Статья',
+      title: post.name || 'Post',
       description: description,
       type: 'article',
       publishedTime: post.createdAt,
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.name || 'Статья',
+      title: post.name || 'Post',
       description: description,
     },
     alternates: {
@@ -47,7 +47,7 @@ export default async function PostDetailPage({ params }: Props) {
   const post = await getPostBySlug(slug);
 
   if (!post) {
-    return <div>Страница не найдена</div>;
+    return <div>Nie znaleziono strony</div>;
   }
 
   const schemaMarkup = {

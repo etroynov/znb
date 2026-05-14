@@ -1,40 +1,43 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig } from 'payload';
 
 export const Organizations: CollectionConfig = {
-  slug: "organizations",
+  slug: 'organizations',
   admin: {
-    useAsTitle: "name",
-    defaultColumns: ["name", "city", "status", "type"],
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'city', 'status', 'type'],
   },
   access: {
     read: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === "admin") return true;
+      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+        return true;
       if (user) {
         return {
           or: [
-            { status: { equals: "approved" } },
+            { status: { equals: 'approved' } },
             { owner: { equals: user.id } },
           ],
         } as any;
       }
       return {
-        status: { equals: "approved" },
+        status: { equals: 'approved' },
       };
     },
     create: ({ req: { user } }) => Boolean(user),
     update: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === "admin") return true;
+      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+        return true;
       if (!user) return false;
       return {
         owner: { equals: user.id },
       };
     },
     delete: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === "admin") return true;
+      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+        return true;
       if (!user) return false;
       return {
         owner: { equals: user.id },
-        status: { equals: "draft" },
+        status: { equals: 'draft' },
       };
     },
   },
@@ -50,169 +53,173 @@ export const Organizations: CollectionConfig = {
   },
   fields: [
     {
-      name: "name",
-      type: "text",
+      name: 'name',
+      type: 'text',
       required: true,
-      label: "Name",
+      label: 'Name',
     },
     {
-      name: "slug",
-      type: "text",
+      name: 'slug',
+      type: 'text',
       required: true,
       unique: true,
       index: true,
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
       },
     },
     {
-      name: "status",
-      type: "select",
-      defaultValue: "draft",
-      label: "Status",
+      name: 'status',
+      type: 'select',
+      defaultValue: 'draft',
+      label: 'Status',
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
       },
       options: [
-        { label: "Draft", value: "draft" },
-        { label: "Pending review", value: "pending" },
-        { label: "Approved", value: "approved" },
-        { label: "Rejected", value: "rejected" },
+        { label: 'Draft', value: 'draft' },
+        { label: 'Pending review', value: 'pending' },
+        { label: 'Approved', value: 'approved' },
+        { label: 'Rejected', value: 'rejected' },
       ],
     },
     {
-      name: "owner",
-      type: "relationship",
-      relationTo: "jewelers",
-      label: "Owner",
+      name: 'owner',
+      type: 'relationship',
+      relationTo: 'jewelers',
+      label: 'Owner',
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
       },
     },
     {
-      name: "type",
-      type: "select",
-      label: "Type",
+      name: 'type',
+      type: 'select',
+      label: 'Type',
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
       },
       options: [
         {
-          label: "Studio",
-          value: "studio",
+          label: 'Studio',
+          value: 'studio',
         },
         {
-          label: "Shop",
-          value: "shop",
+          label: 'Sklep',
+          value: 'shop',
+        },
+        {
+          label: 'Osoba prywatna',
+          value: 'individual',
         },
       ],
     },
     {
-      name: "logo",
-      type: "relationship",
-      relationTo: "media",
-      label: "Logo",
+      name: 'logo',
+      type: 'relationship',
+      relationTo: 'media',
+      label: 'Logo',
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
       },
     },
     {
-      name: "content",
-      type: "richText",
-      label: "Description",
+      name: 'content',
+      type: 'richText',
+      label: 'Description',
     },
     {
-      name: "gallery",
-      type: "array",
-      label: "Gallery",
+      name: 'gallery',
+      type: 'array',
+      label: 'Gallery',
       fields: [
         {
-          name: "image",
-          type: "relationship",
-          relationTo: "media",
+          name: 'image',
+          type: 'relationship',
+          relationTo: 'media',
           required: true,
         },
       ],
     },
     {
-      name: "city",
-      type: "text",
-      label: "City",
+      name: 'city',
+      type: 'text',
+      label: 'City',
     },
     {
-      name: "address",
-      type: "text",
-      label: "Address",
+      name: 'address',
+      type: 'text',
+      label: 'Address',
     },
     {
-      name: "location",
-      type: "group",
-      label: "Coordinates",
+      name: 'location',
+      type: 'group',
+      label: 'Coordinates',
       fields: [
         {
-          name: "lat",
-          type: "number",
-          label: "Latitude",
+          name: 'lat',
+          type: 'number',
+          label: 'Latitude',
         },
         {
-          name: "lng",
-          type: "number",
-          label: "Longitude",
+          name: 'lng',
+          type: 'number',
+          label: 'Longitude',
         },
       ],
     },
     {
-      name: "contacts",
-      type: "array",
-      label: "Contacts",
+      name: 'contacts',
+      type: 'array',
+      label: 'Contacts',
       fields: [
         {
-          type: "row",
+          type: 'row',
           fields: [
             {
-              name: "type",
-              type: "select",
+              name: 'type',
+              type: 'select',
               options: [
                 {
-                  label: "Website",
-                  value: "website",
+                  label: 'Website',
+                  value: 'website',
                 },
                 {
-                  label: "Phone",
-                  value: "phone",
+                  label: 'Phone',
+                  value: 'phone',
                 },
                 {
-                  label: "Email",
-                  value: "email",
+                  label: 'Email',
+                  value: 'email',
                 },
               ],
             },
             {
-              name: "value",
-              type: "text",
+              name: 'value',
+              type: 'text',
             },
           ],
         },
       ],
     },
     {
-      name: "socials",
-      type: "array",
-      label: "Socials",
+      name: 'socials',
+      type: 'array',
+      label: 'Socials',
       fields: [
         {
-          type: "row",
+          type: 'row',
           fields: [
             {
-              name: "name",
-              type: "text",
-              label: "Platform",
-              defaultValue: "Instagram",
+              name: 'name',
+              type: 'text',
+              label: 'Platform',
+              defaultValue: 'Instagram',
             },
             {
-              name: "link",
-              type: "text",
-              label: "Link",
+              name: 'link',
+              type: 'text',
+              label: 'Link',
               validate: (value: string | null | undefined) => {
                 if (!value) {
                   return true;
@@ -221,7 +228,7 @@ export const Organizations: CollectionConfig = {
                   new URL(value);
                   return true;
                 } catch {
-                  return "Please enter a valid URL (e.g., https://instagram.com/username)";
+                  return 'Please enter a valid URL (e.g., https://instagram.com/username)';
                 }
               },
             },
@@ -230,22 +237,22 @@ export const Organizations: CollectionConfig = {
       ],
     },
     {
-      name: "services",
-      type: "array",
-      label: "Services",
+      name: 'services',
+      type: 'array',
+      label: 'Services',
       fields: [
         {
-          type: "row",
+          type: 'row',
           fields: [
             {
-              name: "name",
-              type: "text",
-              label: "Service name",
+              name: 'name',
+              type: 'text',
+              label: 'Service name',
             },
             {
-              name: "price",
-              type: "text",
-              label: "Price",
+              name: 'price',
+              type: 'text',
+              label: 'Price',
             },
           ],
         },

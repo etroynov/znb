@@ -18,6 +18,9 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         slug: {
           equals: slug,
         },
+        _status: {
+          equals: 'published',
+        },
       },
       limit: 1,
     });
@@ -46,7 +49,11 @@ export async function getAllPosts(options: any = {}): Promise<Post[]> {
     const payload = await getPayloadClient();
     const startTime = Date.now();
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      _status: {
+        equals: 'published',
+      },
+    };
 
     const { docs } = await payload.find({
       collection: COLLECTION_NAME,

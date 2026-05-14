@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Trash2, Plus } from "lucide-react";
+import { Plus, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Service {
   name: string;
@@ -13,7 +13,7 @@ interface Organization {
   id: string;
   name: string;
   slug: string;
-  type: "studio" | "shop" | null;
+  type: 'studio' | 'shop' | null;
   city: string | null;
   address: string | null;
   content: Record<string, unknown> | null;
@@ -24,91 +24,91 @@ interface Organization {
   location: { lat: number | null; lng: number | null };
 }
 
-type PageState = "loading" | "unauthenticated" | "create" | "edit";
+type PageState = 'loading' | 'unauthenticated' | 'create' | 'edit';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [pageState, setPageState] = useState<PageState>("loading");
+  const [pageState, setPageState] = useState<PageState>('loading');
   const [orgId, setOrgId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [type, setType] = useState<"studio" | "shop" | "">("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [type, setType] = useState<'studio' | 'shop' | 'individual' | ''>('');
+  const [city, setCity] = useState('');
+  const [address, setAddress] = useState('');
+  const [description, setDescription] = useState('');
 
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [website, setWebsite] = useState("");
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
 
-  const [instagram, setInstagram] = useState("");
-  const [facebook, setFacebook] = useState("");
+  const [instagram, setInstagram] = useState('');
+  const [facebook, setFacebook] = useState('');
 
   const [services, setServices] = useState<Service[]>([]);
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [orgStatus, setOrgStatus] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [orgStatus, setOrgStatus] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     loadUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadUser() {
     try {
-      const meRes = await fetch("/api/jewelers/me", {
-        credentials: "include",
+      const meRes = await fetch('/api/jewelers/me', {
+        credentials: 'include',
       });
       if (!meRes.ok) {
-        setPageState("unauthenticated");
+        setPageState('unauthenticated');
         return;
       }
       const meData = await meRes.json();
       const userId = meData.user?.id || meData?.id;
       if (!userId) {
-        setPageState("unauthenticated");
+        setPageState('unauthenticated');
         return;
       }
 
       const orgRes = await fetch(
         `/api/organizations?where[owner][equals]=${userId}&depth=0&limit=1`,
-        { credentials: "include" },
+        { credentials: 'include' },
       );
       if (!orgRes.ok) {
-        setPageState("create");
+        setPageState('create');
         return;
       }
       const orgData = await orgRes.json();
       const org: Organization | undefined = orgData.docs?.[0];
 
       if (!org) {
-        setPageState("create");
+        setPageState('create');
         return;
       }
 
       setOrgId(org.id);
-      setOrgStatus(org.status || "draft");
-      setName(org.name || "");
-      setSlug(org.slug || "");
-      setType(org.type || "");
-      setCity(org.city || "");
-      setAddress(org.address || "");
-      setPhone(getContactValue(org.contacts, "phone"));
-      setEmail(getContactValue(org.contacts, "email"));
-      setWebsite(getContactValue(org.contacts, "website"));
-      setInstagram(getSocialValue(org.socials, "Instagram"));
-      setFacebook(getSocialValue(org.socials, "Facebook"));
+      setOrgStatus(org.status || 'draft');
+      setName(org.name || '');
+      setSlug(org.slug || '');
+      setType(org.type || '');
+      setCity(org.city || '');
+      setAddress(org.address || '');
+      setPhone(getContactValue(org.contacts, 'phone'));
+      setEmail(getContactValue(org.contacts, 'email'));
+      setWebsite(getContactValue(org.contacts, 'website'));
+      setInstagram(getSocialValue(org.socials, 'Instagram'));
+      setFacebook(getSocialValue(org.socials, 'Facebook'));
       setServices(org.services || []);
-      setLat(org.location?.lat?.toString() || "");
-      setLng(org.location?.lng?.toString() || "");
-      setPageState("edit");
+      setLat(org.location?.lat?.toString() || '');
+      setLng(org.location?.lng?.toString() || '');
+      setPageState('edit');
     } catch {
-      setPageState("unauthenticated");
+      setPageState('unauthenticated');
     }
   }
 
@@ -116,21 +116,21 @@ export default function DashboardPage() {
     contacts: { type: string; value: string }[],
     type: string,
   ): string {
-    return contacts?.find((c) => c.type === type)?.value || "";
+    return contacts?.find((c) => c.type === type)?.value || '';
   }
 
   function getSocialValue(
     socials: { name: string; link: string }[],
     name: string,
   ): string {
-    return socials?.find((s) => s.name === name)?.link || "";
+    return socials?.find((s) => s.name === name)?.link || '';
   }
 
   function generateSlug(value: string): string {
     return value
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
       .slice(0, 200);
   }
 
@@ -145,10 +145,14 @@ export default function DashboardPage() {
   );
 
   function addService() {
-    setServices([...services, { name: "", price: "" }]);
+    setServices([...services, { name: '', price: '' }]);
   }
 
-  function updateService(index: number, field: "name" | "price", value: string) {
+  function updateService(
+    index: number,
+    field: 'name' | 'price',
+    value: string,
+  ) {
     const updated = [...services];
     updated[index] = { ...updated[index], [field]: value };
     setServices(updated);
@@ -161,16 +165,16 @@ export default function DashboardPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
-    setError("");
+    setError('');
 
     const contacts = [];
-    if (phone) contacts.push({ type: "phone", value: phone });
-    if (email) contacts.push({ type: "email", value: email });
-    if (website) contacts.push({ type: "website", value: website });
+    if (phone) contacts.push({ type: 'phone', value: phone });
+    if (email) contacts.push({ type: 'email', value: email });
+    if (website) contacts.push({ type: 'website', value: website });
 
     const socials = [];
-    if (instagram) socials.push({ name: "Instagram", link: instagram });
-    if (facebook) socials.push({ name: "Facebook", link: facebook });
+    if (instagram) socials.push({ name: 'Instagram', link: instagram });
+    if (facebook) socials.push({ name: 'Facebook', link: facebook });
 
     const body: Record<string, unknown> = {
       name,
@@ -188,29 +192,41 @@ export default function DashboardPage() {
     };
 
     try {
-      const url = orgId ? `/api/organizations/${orgId}` : "/api/organizations";
-      const method = orgId ? "PATCH" : "POST";
+      const url = orgId ? `/api/organizations/${orgId}` : '/api/organizations';
+      const method = orgId ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!res.ok) {
         const err = await res.json();
-        setError(err.message || err.errors?.[0]?.message || "Failed to save");
+        const msg = err.message || err.errors?.[0]?.message || 'Failed to save';
+        const field = err.errors?.[0]?.field;
+        if (
+          field === 'slug' ||
+          msg.toLowerCase().includes('duplicate') ||
+          msg.toLowerCase().includes('unique')
+        ) {
+          setError(
+            'This URL slug is already taken. Please choose a different one.',
+          );
+        } else {
+          setError(msg);
+        }
         return;
       }
 
       const saved = await res.json();
       setOrgId(saved.doc?.id || saved?.id);
-      setPageState("edit");
-      setSuccessMessage("Profile saved successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      setPageState('edit');
+      setSuccessMessage('Profile saved successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch {
-      setError("Connection error. Please try again.");
+      setError('Connection error. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -219,35 +235,35 @@ export default function DashboardPage() {
   async function handleSubmitForReview() {
     if (!orgId) return;
     setSubmitting(true);
-    setError("");
+    setError('');
 
     try {
       const res = await fetch(`/api/organizations/${orgId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "pending" }),
-        credentials: "include",
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'pending' }),
+        credentials: 'include',
       });
 
       if (!res.ok) {
         const err = await res.json();
-        setError(err.message || "Failed to submit");
+        setError(err.message || 'Failed to submit');
         return;
       }
 
-      setOrgStatus("pending");
+      setOrgStatus('pending');
     } catch {
-      setError("Connection error.");
+      setError('Connection error.');
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (pageState === "loading") {
+  if (pageState === 'loading') {
     return <p className="text-center text-gray-500">Loading...</p>;
   }
 
-  if (pageState === "unauthenticated") {
+  if (pageState === 'unauthenticated') {
     return (
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
@@ -272,25 +288,25 @@ export default function DashboardPage() {
         <div className="mb-6 flex items-center gap-3">
           <span
             className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-              orgStatus === "approved"
-                ? "bg-green-100 text-green-800"
-                : orgStatus === "pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : orgStatus === "rejected"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-gray-100 text-gray-800"
+              orgStatus === 'approved'
+                ? 'bg-green-100 text-green-800'
+                : orgStatus === 'pending'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : orgStatus === 'rejected'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-gray-100 text-gray-800'
             }`}
           >
             {getStatusLabel()}
           </span>
-          {(orgStatus === "draft" || orgStatus === "rejected") && (
+          {(orgStatus === 'draft' || orgStatus === 'rejected') && (
             <button
               type="button"
               onClick={handleSubmitForReview}
               disabled={submitting}
               className="text-sm bg-blue-600 text-white px-4 py-1.5 rounded-lg disabled:opacity-50"
             >
-              {submitting ? "Submitting..." : "Submit for review"}
+              {submitting ? 'Submitting...' : 'Submit for review'}
             </button>
           )}
         </div>
@@ -344,12 +360,15 @@ export default function DashboardPage() {
               <select
                 id="type"
                 value={type}
-                onChange={(e) => setType(e.target.value as "studio" | "shop" | "")}
+                onChange={(e) =>
+                  setType(e.target.value as 'studio' | 'shop' | '')
+                }
                 className="w-full border rounded-lg px-3 py-2"
               >
                 <option value="">Select type</option>
                 <option value="studio">Studio</option>
-                <option value="shop">Shop</option>
+                <option value="shop">Sklep</option>
+                <option value="individual">Osoba prywatna</option>
               </select>
             </div>
 
@@ -366,7 +385,10 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <label htmlFor="address" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium mb-1"
+              >
                 Address
               </label>
               <input
@@ -378,7 +400,10 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium mb-1"
+              >
                 Description
               </label>
               <textarea
@@ -409,7 +434,10 @@ export default function DashboardPage() {
               />
             </div>
             <div>
-              <label htmlFor="emailContact" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="emailContact"
+                className="block text-sm font-medium mb-1"
+              >
                 Email
               </label>
               <input
@@ -421,7 +449,10 @@ export default function DashboardPage() {
               />
             </div>
             <div>
-              <label htmlFor="website" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="website"
+                className="block text-sm font-medium mb-1"
+              >
                 Website
               </label>
               <input
@@ -440,7 +471,10 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold mb-4">Social Media</h2>
           <div className="space-y-4">
             <div>
-              <label htmlFor="instagram" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="instagram"
+                className="block text-sm font-medium mb-1"
+              >
                 Instagram URL
               </label>
               <input
@@ -453,7 +487,10 @@ export default function DashboardPage() {
               />
             </div>
             <div>
-              <label htmlFor="facebook" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="facebook"
+                className="block text-sm font-medium mb-1"
+              >
                 Facebook URL
               </label>
               <input
@@ -488,13 +525,13 @@ export default function DashboardPage() {
                 <div key={i} className="flex gap-3 items-start">
                   <input
                     value={service.name}
-                    onChange={(e) => updateService(i, "name", e.target.value)}
+                    onChange={(e) => updateService(i, 'name', e.target.value)}
                     placeholder="Service name"
                     className="flex-1 border rounded-lg px-3 py-2"
                   />
                   <input
                     value={service.price}
-                    onChange={(e) => updateService(i, "price", e.target.value)}
+                    onChange={(e) => updateService(i, 'price', e.target.value)}
                     placeholder="Price"
                     className="w-32 border rounded-lg px-3 py-2"
                   />
@@ -544,16 +581,14 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {error ? (
-          <p className="text-red-600 text-sm">{error}</p>
-        ) : null}
+        {error ? <p className="text-red-600 text-sm">{error}</p> : null}
 
         <button
           type="submit"
           disabled={saving}
           className="w-full bg-black text-white rounded-lg px-4 py-3 font-medium disabled:opacity-50"
         >
-          {saving ? "Saving..." : orgId ? "Save changes" : "Create profile"}
+          {saving ? 'Saving...' : orgId ? 'Save changes' : 'Create profile'}
         </button>
       </form>
     </div>
@@ -561,10 +596,10 @@ export default function DashboardPage() {
 
   function getStatusLabel() {
     const labels: Record<string, string> = {
-      draft: "Draft — not submitted yet",
-      pending: "Pending review by admin",
-      approved: "Published — visible in catalog",
-      rejected: "Rejected — please check with admin",
+      draft: 'Draft — not submitted yet',
+      pending: 'Pending review by admin',
+      approved: 'Published — visible in catalog',
+      rejected: 'Rejected — please check with admin',
     };
     return labels[orgStatus] || orgStatus;
   }

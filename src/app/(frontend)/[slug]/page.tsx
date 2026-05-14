@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getPayload } from "payload";
-import config from "@/payload.config";
-import { Serializer } from "../_components/Serializer";
-import { MapPin, Globe, Mail, Phone, Camera, MessageCircle } from "lucide-react";
+import {
+  Camera,
+  Globe,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from 'lucide-react';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getPayload } from 'payload';
+import config from '@/payload.config';
+import type { OrganizationType } from '@/utils/organizationTypes';
+import { ORGANIZATION_TYPE_LABELS } from '@/utils/organizationTypes';
+import { Serializer } from '../_components/Serializer';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,23 +24,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const payload = await getPayload({ config: payloadConfig });
 
   const { docs } = await payload.find({
-    collection: "organizations",
+    collection: 'organizations',
     where: { slug: { equals: slug } },
     depth: 0,
     limit: 1,
   });
 
   const org = docs[0];
-  if (!org) return { title: "Not found" };
+  if (!org) return { title: 'Not found' };
 
   return {
     title: org.name,
-    description: `${org.name} — ${org.city || "jubiler"}. Znajdź jubilera w Polsce.`,
+    description: `${org.name} — ${org.city || 'jubiler'}. Znajdź jubilera w Polsce.`,
     robots: { index: true, follow: true },
     openGraph: {
       title: org.name,
-      description: `${org.name} — ${org.city || "jubiler"} w katalogu Znajdź Jubilera.`,
-      type: "profile",
+      description: `${org.name} — ${org.city || 'jubiler'} w katalogu Znajdź Jubilera.`,
+      type: 'profile',
       url: `/${org.slug}`,
     },
     alternates: {
@@ -47,7 +56,7 @@ export default async function JewelerPage({ params }: Props) {
   const payload = await getPayload({ config: payloadConfig });
 
   const { docs } = await payload.find({
-    collection: "organizations",
+    collection: 'organizations',
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
@@ -57,17 +66,19 @@ export default async function JewelerPage({ params }: Props) {
   if (!org) notFound();
 
   const logoUrl =
-    org.logo && typeof org.logo !== "string" ? org.logo.url : null;
+    org.logo && typeof org.logo !== 'string' ? org.logo.url : null;
   const logoAlt =
-    org.logo && typeof org.logo !== "string" ? org.logo.alt || org.name : org.name;
+    org.logo && typeof org.logo !== 'string'
+      ? org.logo.alt || org.name
+      : org.name;
 
-  const phoneContact = org.contacts?.find((c) => c.type === "phone");
-  const emailContact = org.contacts?.find((c) => c.type === "email");
-  const websiteContact = org.contacts?.find((c) => c.type === "website");
+  const phoneContact = org.contacts?.find((c) => c.type === 'phone');
+  const emailContact = org.contacts?.find((c) => c.type === 'email');
+  const websiteContact = org.contacts?.find((c) => c.type === 'website');
 
   const schemaMarkup = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
     name: org.name,
     ...(logoUrl ? { image: logoUrl } : {}),
     ...(phoneContact?.value ? { telephone: phoneContact.value } : {}),
@@ -76,24 +87,32 @@ export default async function JewelerPage({ params }: Props) {
     ...(org.city || org.address
       ? {
           address: {
-            "@type": "PostalAddress",
+            '@type': 'PostalAddress',
             ...(org.address ? { streetAddress: org.address } : {}),
             ...(org.city ? { addressLocality: org.city } : {}),
-            addressCountry: "PL",
+            addressCountry: 'PL',
           },
         }
       : {}),
     ...(org.location?.lat && org.location?.lng
       ? {
           geo: {
-            "@type": "GeoCoordinates",
+            '@type': 'GeoCoordinates',
             latitude: org.location.lat,
             longitude: org.location.lng,
           },
         }
       : {}),
     ...(org.services?.filter((s) => s.name).length
-      ? { makesOffer: org.services.filter((s) => s.name).map((s) => ({ "@type": "Offer", name: s.name, ...(s.price ? { price: s.price, priceCurrency: "PLN" } : {}) })) }
+      ? {
+          makesOffer: org.services
+            .filter((s) => s.name)
+            .map((s) => ({
+              '@type': 'Offer',
+              name: s.name,
+              ...(s.price ? { price: s.price, priceCurrency: 'PLN' } : {}),
+            })),
+        }
       : {}),
   };
 
@@ -117,7 +136,8 @@ export default async function JewelerPage({ params }: Props) {
           <div className="flex flex-wrap gap-2 mt-2">
             {org.type ? (
               <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                {org.type === "studio" ? "Studio" : "Shop"}
+                {ORGANIZATION_TYPE_LABELS[org.type as OrganizationType] ||
+                  org.type}
               </span>
             ) : null}
             {org.city ? (
@@ -149,12 +169,12 @@ export default async function JewelerPage({ params }: Props) {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {org.gallery.map((item) => {
                   const img =
-                    typeof item.image === "string" ? null : item.image;
+                    typeof item.image === 'string' ? null : item.image;
                   return img?.url ? (
                     <img
                       key={item.id}
                       src={img.url}
-                      alt={img.alt || ""}
+                      alt={img.alt || ''}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                   ) : null;
@@ -185,7 +205,7 @@ export default async function JewelerPage({ params }: Props) {
                       .map((service, i) => (
                         <tr key={i} className="border-t">
                           <td className="px-4 py-2">{service.name}</td>
-                          <td className="px-4 py-2">{service.price || "—"}</td>
+                          <td className="px-4 py-2">{service.price || '—'}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -248,9 +268,9 @@ export default async function JewelerPage({ params }: Props) {
               <ul className="space-y-2">
                 {org.socials.map((social, i) => {
                   const Icon =
-                    social.name?.toLowerCase() === "instagram"
+                    social.name?.toLowerCase() === 'instagram'
                       ? Camera
-                      : social.name?.toLowerCase() === "facebook"
+                      : social.name?.toLowerCase() === 'facebook'
                         ? MessageCircle
                         : Globe;
                   return social.link ? (
@@ -262,7 +282,7 @@ export default async function JewelerPage({ params }: Props) {
                         className="flex items-center gap-2 text-sm hover:underline"
                       >
                         <Icon size={16} className="shrink-0" />
-                        {social.name || "Link"}
+                        {social.name || 'Link'}
                       </a>
                     </li>
                   ) : null;
@@ -277,7 +297,7 @@ export default async function JewelerPage({ params }: Props) {
               <h2 className="text-lg font-semibold mb-3">Location</h2>
               <p className="text-sm flex items-start gap-2">
                 <MapPin size={16} className="shrink-0 mt-0.5" />
-                {[org.address, org.city].filter(Boolean).join(", ")}
+                {[org.address, org.city].filter(Boolean).join(', ')}
               </p>
               {org.location?.lat && org.location?.lng ? (
                 <a

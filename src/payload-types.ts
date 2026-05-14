@@ -75,6 +75,7 @@ export interface Config {
     posts: Post;
     pages: Page;
     tags: Tag;
+    events: Event;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -89,6 +90,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -265,7 +267,7 @@ export interface Organization {
   slug: string;
   status?: ('draft' | 'pending' | 'approved' | 'rejected') | null;
   owner?: (string | null) | Jeweler;
-  type?: ('studio' | 'shop') | null;
+  type?: ('studio' | 'shop' | 'individual') | null;
   logo?: (string | null) | Media;
   content?: {
     root: {
@@ -326,7 +328,7 @@ export interface Post {
   id: string;
   name?: string | null;
   /**
-   * Краткое описание поста для SEO
+   * Short description for SEO
    */
   excerpt?: string | null;
   content?: {
@@ -404,6 +406,53 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  name: string;
+  slug: string;
+  type?: ('masterclass' | 'exhibition' | 'workshop' | 'news' | 'other') | null;
+  status?: ('draft' | 'published' | 'cancelled') | null;
+  organizer?: (string | null) | Organization;
+  owner?: (string | null) | Jeweler;
+  date?: string | null;
+  endDate?: string | null;
+  city?: string | null;
+  address?: string | null;
+  price?: string | null;
+  /**
+   * Short description for SEO
+   */
+  excerpt?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  image?: (string | null) | Media;
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -453,6 +502,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tags';
         value: string | Tag;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: string | Event;
       } | null);
   globalSlug?: string | null;
   user:
@@ -715,6 +768,35 @@ export interface TagsSelect<T extends boolean = true> {
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  type?: T;
+  status?: T;
+  organizer?: T;
+  owner?: T;
+  date?: T;
+  endDate?: T;
+  city?: T;
+  address?: T;
+  price?: T;
+  excerpt?: T;
+  description?: T;
+  image?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
