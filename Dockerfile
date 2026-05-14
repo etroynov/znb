@@ -5,7 +5,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
-RUN npm i -g pnpm@11.1.1 && pnpm i --frozen-lockfile;
+RUN npm i -g pnpm@11.1.1 && pnpm config set ignore-build-scripts false && pnpm i --frozen-lockfile;
 
 FROM base AS builder
 WORKDIR /app
@@ -20,7 +20,7 @@ ARG PAYLOAD_SECRET
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 
-RUN npm i -g pnpm@11.1.1 && pnpm i --frozen-lockfile;
+RUN npm i -g pnpm@11.1.1 && pnpm config set ignore-build-scripts false && pnpm i --frozen-lockfile;
 RUN pnpm build
 
 FROM base AS runner
