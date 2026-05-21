@@ -10,8 +10,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
-import type { OrganizationType } from '@/utils/organizationTypes';
-import { ORGANIZATION_TYPE_LABELS } from '@/utils/organizationTypes';
+import type { BusinessType } from '@/utils/businessTypes';
+import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 import { Serializer } from '../_components/Serializer';
 
 interface Props {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const payload = await getPayload({ config: payloadConfig });
 
   const { docs } = await payload.find({
-    collection: 'organizations',
+    collection: 'businesses',
     where: { slug: { equals: slug } },
     depth: 0,
     limit: 1,
@@ -56,7 +56,7 @@ export default async function JewelerPage({ params }: Props) {
   const payload = await getPayload({ config: payloadConfig });
 
   const { docs } = await payload.find({
-    collection: 'organizations',
+    collection: 'businesses',
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
@@ -136,7 +136,7 @@ export default async function JewelerPage({ params }: Props) {
           <div className="flex flex-wrap gap-2 mt-2">
             {org.type ? (
               <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                {ORGANIZATION_TYPE_LABELS[org.type as OrganizationType] ||
+                {BUSINESS_TYPE_LABELS[org.type as BusinessType] ||
                   org.type}
               </span>
             ) : null}

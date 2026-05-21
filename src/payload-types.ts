@@ -69,9 +69,9 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    businesses: Business;
     jewelers: Jeweler;
     media: Media;
-    organizations: Organization;
     posts: Post;
     pages: Page;
     tags: Tag;
@@ -84,9 +84,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    businesses: BusinessesSelect<false> | BusinessesSelect<true>;
     jewelers: JewelersSelect<false> | JewelersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
@@ -178,6 +178,69 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "businesses".
+ */
+export interface Business {
+  id: string;
+  name: string;
+  slug: string;
+  status?: ('draft' | 'pending' | 'approved' | 'rejected') | null;
+  owner?: (string | null) | Jeweler;
+  type?: ('studio' | 'shop' | 'individual') | null;
+  logo?: (string | null) | Media;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  city?: string | null;
+  address?: string | null;
+  location?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  contacts?:
+    | {
+        type?: ('website' | 'phone' | 'email') | null;
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  socials?:
+    | {
+        name?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  services?:
+    | {
+        name?: string | null;
+        price?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "jewelers".
  */
 export interface Jeweler {
@@ -256,69 +319,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations".
- */
-export interface Organization {
-  id: string;
-  name: string;
-  slug: string;
-  status?: ('draft' | 'pending' | 'approved' | 'rejected') | null;
-  owner?: (string | null) | Jeweler;
-  type?: ('studio' | 'shop' | 'individual') | null;
-  logo?: (string | null) | Media;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  gallery?:
-    | {
-        image: string | Media;
-        id?: string | null;
-      }[]
-    | null;
-  city?: string | null;
-  address?: string | null;
-  location?: {
-    lat?: number | null;
-    lng?: number | null;
-  };
-  contacts?:
-    | {
-        type?: ('website' | 'phone' | 'email') | null;
-        value?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  socials?:
-    | {
-        name?: string | null;
-        link?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  services?:
-    | {
-        name?: string | null;
-        price?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -414,7 +414,7 @@ export interface Event {
   slug: string;
   type?: ('masterclass' | 'exhibition' | 'workshop' | 'news' | 'other') | null;
   status?: ('draft' | 'published' | 'cancelled') | null;
-  organizer?: (string | null) | Organization;
+  organizer?: (string | null) | Business;
   owner?: (string | null) | Jeweler;
   date?: string | null;
   endDate?: string | null;
@@ -480,16 +480,16 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'businesses';
+        value: string | Business;
+      } | null)
+    | ({
         relationTo: 'jewelers';
         value: string | Jeweler;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'organizations';
-        value: string | Organization;
       } | null)
     | ({
         relationTo: 'posts';
@@ -586,6 +586,56 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "businesses_select".
+ */
+export interface BusinessesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  status?: T;
+  owner?: T;
+  type?: T;
+  logo?: T;
+  content?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  city?: T;
+  address?: T;
+  location?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  contacts?:
+    | T
+    | {
+        type?: T;
+        value?: T;
+        id?: T;
+      };
+  socials?:
+    | T
+    | {
+        name?: T;
+        link?: T;
+        id?: T;
+      };
+  services?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "jewelers_select".
  */
 export interface JewelersSelect<T extends boolean = true> {
@@ -670,56 +720,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations_select".
- */
-export interface OrganizationsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  status?: T;
-  owner?: T;
-  type?: T;
-  logo?: T;
-  content?: T;
-  gallery?:
-    | T
-    | {
-        image?: T;
-        id?: T;
-      };
-  city?: T;
-  address?: T;
-  location?:
-    | T
-    | {
-        lat?: T;
-        lng?: T;
-      };
-  contacts?:
-    | T
-    | {
-        type?: T;
-        value?: T;
-        id?: T;
-      };
-  socials?:
-    | T
-    | {
-        name?: T;
-        link?: T;
-        id?: T;
-      };
-  services?:
-    | T
-    | {
-        name?: T;
-        price?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -2,14 +2,14 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Service {
   name: string;
   price: string;
 }
 
-interface Organization {
+interface Business {
   id: string;
   name: string;
   slug: string;
@@ -24,7 +24,7 @@ interface Organization {
   location: { lat: number | null; lng: number | null };
 }
 
-type PageState = 'loading' | 'unauthenticated' | 'create' | 'edit';
+type PageState = 'loading' | 'unauthenticated' | 'none' | 'edit';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -76,18 +76,18 @@ export default function DashboardPage() {
       }
 
       const orgRes = await fetch(
-        `/api/organizations?where[owner][equals]=${userId}&depth=0&limit=1`,
+        `/api/businesses?where[owner][equals]=${userId}&depth=0&limit=1`,
         { credentials: 'include' },
       );
       if (!orgRes.ok) {
-        setPageState('create');
+        setPageState('none');
         return;
       }
       const orgData = await orgRes.json();
-      const org: Organization | undefined = orgData.docs?.[0];
+      const org: Business | undefined = orgData.docs?.[0];
 
       if (!org) {
-        setPageState('create');
+        setPageState('none');
         return;
       }
 
@@ -120,29 +120,6 @@ export default function DashboardPage() {
   }
 
   function getSocialValue(
-    socials: { name: string; link: string }[],
-    name: string,
-  ): string {
-    return socials?.find((s) => s.name === name)?.link || '';
-  }
-
-  function generateSlug(value: string): string {
-    return value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 200);
-  }
-
-  const handleNameChange = useCallback(
-    (value: string) => {
-      setName(value);
-      if (!orgId) {
-        setSlug(generateSlug(value));
-      }
-    },
-    [orgId],
-  );
 
   function addService() {
     setServices([...services, { name: '', price: '' }]);
@@ -178,7 +155,7 @@ export default function DashboardPage() {
 
     const body: Record<string, unknown> = {
       name,
-      slug: slug || generateSlug(name),
+      slug,
       type: type || undefined,
       city: city || undefined,
       address: address || undefined,
@@ -192,8 +169,8 @@ export default function DashboardPage() {
     };
 
     try {
-      const url = orgId ? `/api/organizations/${orgId}` : '/api/organizations';
-      const method = orgId ? 'PATCH' : 'POST';
+      const url = `/api/businesses/${orgId}`;
+      const method = 'PATCH';
 
       const res = await fetch(url, {
         method,
@@ -238,7 +215,7 @@ export default function DashboardPage() {
     setError('');
 
     try {
-      const res = await fetch(`/api/organizations/${orgId}`, {
+      const res = await fetch(`/api/businesses/${orgId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'pending' }),
@@ -275,6 +252,24 @@ export default function DashboardPage() {
           className="inline-block bg-black text-white rounded-lg px-6 py-2"
         >
           Log in
+        </a>
+      </div>
+    );
+  }
+
+  if (pageState === 'none') {
+    return (
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
+        <p className="text-gray-500 mb-4">
+          Nie masz jeszcze przypisanego profilu. Skontaktuj się z
+          administratorem.
+        </p>
+        <a
+          href="/"
+          className="inline-block bg-black text-white rounded-lg px-6 py-2"
+        >
+          Wróć do strony głównej
         </a>
       </div>
     );
@@ -334,7 +329,7 @@ export default function DashboardPage() {
               <input
                 id="name"
                 value={name}
-                onChange={(e) => handleNameChange(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full border rounded-lg px-3 py-2"
               />
@@ -588,7 +583,7 @@ export default function DashboardPage() {
           disabled={saving}
           className="w-full bg-black text-white rounded-lg px-4 py-3 font-medium disabled:opacity-50"
         >
-          {saving ? 'Saving...' : orgId ? 'Save changes' : 'Create profile'}
+          {saving ? 'Saving...' : 'Save changes'}
         </button>
       </form>
     </div>

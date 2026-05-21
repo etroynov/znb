@@ -10,7 +10,7 @@ export default async function sitemap() {
   const payload = await getPayload({ config: payloadConfig });
 
   const { docs: jewelers } = await payload.find({
-    collection: "organizations",
+    collection: "businesses",
     where: { status: { equals: "approved" } },
     depth: 0,
     limit: 1000,

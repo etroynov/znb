@@ -15,10 +15,10 @@ import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 import { twoColumn } from './blocks/twoColumn';
+import { Businesses } from './collections/Businesses';
 import { Events } from './collections/Events';
 import { Jewelers } from './collections/Jewelers';
 import { Media } from './collections/Media';
-import { Organizations } from './collections/Organizations';
 import { Pages } from './collections/Pages';
 import { Posts } from './collections/Posts';
 import { Tags } from './collections/Tags';
@@ -45,9 +45,9 @@ export default buildConfig({
   },
   collections: [
     Users,
+    Businesses,
     Jewelers,
     Media,
-    Organizations,
     Posts,
     Pages,
     Tags,

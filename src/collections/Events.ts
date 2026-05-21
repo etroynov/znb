@@ -48,8 +48,9 @@ export const Events: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ req, data }) => {
-        if (!data?.owner && req.user) {
-          return { ...data, owner: req.user.id };
+        const user = req.user as { collection?: string } | undefined;
+        if (!data?.owner && user?.collection === 'jewelers') {
+          return { ...data, owner: req.user!.id };
         }
         return data;
       },
@@ -98,7 +99,7 @@ export const Events: CollectionConfig = {
     {
       name: 'organizer',
       type: 'relationship',
-      relationTo: 'organizations',
+      relationTo: 'businesses',
       label: 'Organizer',
       admin: { position: 'sidebar' },
     },

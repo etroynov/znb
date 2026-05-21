@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
-import type { OrganizationType } from '@/utils/organizationTypes';
-import { ORGANIZATION_TYPE_LABELS } from '@/utils/organizationTypes';
+import type { BusinessType } from '@/utils/businessTypes';
+import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 import { SearchForm } from './_components/SearchForm';
 
 interface Props {
@@ -69,7 +69,7 @@ export default async function HomePage({ searchParams }: Props) {
   }
 
   const { docs: jewelers, totalDocs } = await payload.find({
-    collection: 'organizations',
+    collection: 'businesses',
     where: where as any,
     limit: 50,
   });
@@ -91,7 +91,7 @@ export default async function HomePage({ searchParams }: Props) {
         ...(j.city ? { address: { addressLocality: j.city } } : {}),
         ...(j.type
           ? {
-              description: `Jubiler — ${ORGANIZATION_TYPE_LABELS[j.type as OrganizationType] || j.type}`,
+              description: `Jubiler — ${BUSINESS_TYPE_LABELS[j.type as BusinessType] || j.type}`,
             }
           : {}),
       },
@@ -156,7 +156,7 @@ export default async function HomePage({ searchParams }: Props) {
                   ) : null}
                   {j.type ? (
                     <span className="inline-block mt-2 text-xs bg-gray-100 px-2 py-1 rounded">
-                      {ORGANIZATION_TYPE_LABELS[j.type as OrganizationType] ||
+                      {BUSINESS_TYPE_LABELS[j.type as BusinessType] ||
                         j.type}
                     </span>
                   ) : null}

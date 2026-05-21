@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
-export const Organizations: CollectionConfig = {
-  slug: 'organizations',
+export const Businesses: CollectionConfig = {
+  slug: 'businesses',
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'city', 'status', 'type'],
@@ -22,7 +22,11 @@ export const Organizations: CollectionConfig = {
         status: { equals: 'approved' },
       };
     },
-    create: ({ req: { user } }) => Boolean(user),
+    create: ({ req: { user } }) => {
+      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+        return true;
+      return false;
+    },
     update: ({ req: { user } }) => {
       if ((user as unknown as Record<string, unknown>)?.role === 'admin')
         return true;
@@ -43,10 +47,28 @@ export const Organizations: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      ({ req, data }) => {
-        if (!data?.owner && req.user) {
-          return { ...data, owner: req.user.id };
+      ({ req, data, operation, originalDoc }) => {
+        const user = req.user as { collection?: string } | undefined;
+
+        if (
+          operation === 'create' &&
+          !data?.owner &&
+          user?.collection === 'jewelers'
+        ) {
+          return { ...data, owner: req.user!.id };
         }
+
+        if (
+          operation === 'update' &&
+          'status' in data &&
+          data.status !== originalDoc?.status
+        ) {
+          const isAdmin = (user as any)?.role === 'admin';
+          if (!isAdmin && data.status !== 'pending') {
+            throw new Error('Only admins can approve or reject businesses');
+          }
+        }
+
         return data;
       },
     ],

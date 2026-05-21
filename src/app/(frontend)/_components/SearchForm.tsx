@@ -2,8 +2,8 @@
 
 import { Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { OrganizationType } from '@/utils/organizationTypes';
-import { ORGANIZATION_TYPE_LABELS } from '@/utils/organizationTypes';
+import type { BusinessType } from '@/utils/businessTypes';
+import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 
 export function SearchForm() {
   const router = useRouter();
@@ -61,8 +61,8 @@ export function SearchForm() {
         >
           <option value="">Wszystkie typy</option>
           {(
-            Object.entries(ORGANIZATION_TYPE_LABELS) as [
-              OrganizationType,
+            Object.entries(BUSINESS_TYPE_LABELS) as [
+              BusinessType,
               string,
             ][]
           ).map(([value, label]) => (
