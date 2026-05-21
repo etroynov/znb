@@ -52,7 +52,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
               <Link href="/events" className="hover:underline text-gray-600">
                 Wydarzenia
               </Link>
-              <Link
+              {/* <Link
                 href="/dla-jubilerow"
                 className="hover:underline text-gray-600"
               >
@@ -63,7 +63,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800"
               >
                 Zaloguj się
-              </Link>
+              </Link> */}
             </nav>
           </div>
         </header>
