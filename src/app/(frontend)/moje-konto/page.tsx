@@ -120,6 +120,11 @@ export default function DashboardPage() {
   }
 
   function getSocialValue(
+    socials: { name: string; link: string }[],
+    name: string,
+  ): string {
+    return socials?.find((s) => s.name === name)?.link || '';
+  }
 
   function addService() {
     setServices([...services, { name: '', price: '' }]);
