@@ -3,8 +3,7 @@ import { Calendar, MapPin } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllEvents } from '@/services/events';
-import type { EventType } from '@/utils/eventTypes';
-import { EVENT_TYPE_LABELS } from '@/utils/eventTypes';
+import { EVENT_TYPE_LABELS, isEventType } from '@/utils/eventTypes';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +42,9 @@ export default async function EventsPage() {
             >
               {event.type ? (
                 <span className="inline-block text-xs bg-gray-100 px-2 py-1 rounded mb-3">
-                  {EVENT_TYPE_LABELS[event.type as EventType] || event.type}
+                  {event.type && isEventType(event.type)
+                    ? EVENT_TYPE_LABELS[event.type]
+                    : event.type}
                 </span>
               ) : null}
               <h2 className="font-semibold text-lg mb-2">{event.name}</h2>

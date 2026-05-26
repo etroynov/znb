@@ -5,6 +5,12 @@ import { validateSlug } from '@/utils/validateSlug';
 
 const COLLECTION_NAME = 'events' as const;
 
+interface QueryOptions {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+}
+
 export async function getEventBySlug(slug: string): Promise<Event | null> {
   try {
     validateSlug(slug);
@@ -36,7 +42,7 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
   }
 }
 
-export async function getAllEvents(options: any = {}): Promise<Event[]> {
+export async function getAllEvents(options: QueryOptions = {}): Promise<Event[]> {
   try {
     const { limit: rawLimit, offset = 0, sort = '-date' } = options;
 

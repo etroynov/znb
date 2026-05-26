@@ -4,7 +4,7 @@ import type {
 } from '@payloadcms/richtext-lexical';
 import type { JSXConvertersFunction } from '@payloadcms/richtext-lexical/react';
 import Image from 'next/image';
-import type { Media } from '@/payload-types';
+import type { Media, TwoColumn as TwoColumnBlock } from '@/payload-types';
 import { TwoColumn } from '../twoColumn';
 import { textConverters } from './text';
 
@@ -41,7 +41,7 @@ export const jsxConverter: JSXConvertersFunction<NodeTypes> = ({
   blocks: {
     'two-column': ({ node, nodesToJSX }) => (
       <TwoColumn header={[node.fields.firstTitle, node.fields.secondTitle]}>
-        {node.fields.rows.map((r: any) => (
+        {node.fields.rows.map((r: TwoColumnBlock['rows'][number]) => (
           <tr key={r?.id}>
             <td className="p-2 border">
               {isMedia(r.image) ? (

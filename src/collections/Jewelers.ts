@@ -37,7 +37,7 @@ const afterChangeHook: CollectionAfterChangeHook = async ({
     data: {
       name,
       slug,
-      owner: doc.id as string,
+      owner: String(doc.id),
       status: 'draft',
     },
   });
@@ -57,7 +57,7 @@ export const Jewelers: CollectionConfig = {
   access: {
     create: () => true,
     read: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -65,7 +65,7 @@ export const Jewelers: CollectionConfig = {
       };
     },
     update: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -73,7 +73,7 @@ export const Jewelers: CollectionConfig = {
       };
     },
     delete: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       return false;
     },
@@ -93,6 +93,15 @@ export const Jewelers: CollectionConfig = {
       type: 'text',
       name: 'phone',
       label: 'Phone',
+    },
+    {
+      name: 'role',
+      type: 'text',
+      defaultValue: 'jeweler',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
     },
   ],
 };

@@ -13,9 +13,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
-import type { BusinessType } from '@/utils/businessTypes';
-import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
+import { BUSINESS_TYPE_LABELS, isBusinessType } from '@/utils/businessTypes';
 import { Serializer } from '../_components/Serializer';
+
+function hasName(value: unknown): value is { name: string } {
+  return typeof value === 'object' && value !== null && 'name' in value;
+}
 
 const SOCIAL_ICONS: Record<string, LucideIcon> = {
   instagram: Camera,
@@ -148,21 +151,16 @@ export default async function JewelerPage({ params }: Props) {
           />
         ) : null}
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold">{org.brandName || org.name}</h1>
-          {org.brandName ? (
-            <p className="text-lg text-gray-500 mt-1">{org.name}</p>
-          ) : null}
+          <h1 className="text-3xl font-bold">{org.name}</h1>
           <div className="flex flex-wrap gap-2 mt-2">
-            {org.type ? (
+            {org.type && isBusinessType(org.type) ? (
               <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                {BUSINESS_TYPE_LABELS[org.type as BusinessType] || org.type}
+                {BUSINESS_TYPE_LABELS[org.type]}
               </span>
             ) : null}
-            {org.specialization &&
-            typeof org.specialization === 'object' &&
-            'name' in org.specialization ? (
+            {org.specialization && hasName(org.specialization) ? (
               <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                {(org.specialization as { name: string }).name}
+                {org.specialization.name}
               </span>
             ) : null}
             {org.city ? (
@@ -190,7 +188,7 @@ export default async function JewelerPage({ params }: Props) {
             <section>
               <h2 className="text-xl font-semibold mb-3">About</h2>
               <div className="prose max-w-none">
-                <Serializer data={org.content as any} />
+                <Serializer data={org.content} />
               </div>
             </section>
           ) : null}

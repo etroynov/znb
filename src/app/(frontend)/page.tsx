@@ -2,9 +2,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
-import type { BusinessType } from '@/utils/businessTypes';
-import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
+import { BUSINESS_TYPE_LABELS, isBusinessType } from '@/utils/businessTypes';
+import type { Business } from '@/payload-types';
 import { SearchForm } from './_components/SearchForm';
+
+function specializationName(
+  s: Business['specialization'],
+): string | null {
+  if (s == null) return null;
+  if (typeof s === 'object' && 'name' in s) return s.name;
+  return String(s);
+}
 
 interface Props {
   searchParams: Promise<{
@@ -53,34 +61,17 @@ export default async function HomePage({ searchParams }: Props) {
   const payloadConfig = await config;
   const payload = await getPayload({ config: payloadConfig });
 
-  const where: Record<string, unknown> = {
-    and: [{ status: { equals: 'approved' } }],
-  };
-
-  if (search) {
-    (where.and as Record<string, unknown>[]).push({
-      or: [{ name: { contains: search } }, { brandName: { contains: search } }],
-    });
-  }
-  if (city) {
-    (where.and as Record<string, unknown>[]).push({
-      city: { contains: city },
-    });
-  }
-  if (type) {
-    (where.and as Record<string, unknown>[]).push({
-      type: { equals: type },
-    });
-  }
-  if (specialization) {
-    (where.and as Record<string, unknown>[]).push({
-      specialization: { equals: specialization },
-    });
-  }
+  const conditions = [
+    { status: { equals: 'approved' } },
+    ...(search ? [{ name: { contains: search } }] : []),
+    ...(city ? [{ city: { contains: city } }] : []),
+    ...(type ? [{ type: { equals: type } }] : []),
+    ...(specialization ? [{ specialization: { equals: specialization } }] : []),
+  ];
 
   const { docs: jewelers, totalDocs } = await payload.find({
     collection: 'businesses',
-    where: where as any,
+    where: { and: conditions },
     limit: 50,
   });
 
@@ -99,9 +90,9 @@ export default async function HomePage({ searchParams }: Props) {
         name: j.name,
         url: `/${j.slug}`,
         ...(j.city ? { address: { addressLocality: j.city } } : {}),
-        ...(j.type
+        ...(j.type && isBusinessType(j.type)
           ? {
-              description: `Jubiler — ${BUSINESS_TYPE_LABELS[j.type as BusinessType] || j.type}`,
+              description: `Jubiler — ${BUSINESS_TYPE_LABELS[j.type]}`,
             }
           : {}),
       },
@@ -160,21 +151,18 @@ export default async function HomePage({ searchParams }: Props) {
                       className="w-16 h-16 object-cover rounded mb-3"
                     />
                   ) : null}
-                  <span className="font-semibold">
-                    {(j as any).brandName || j.name}
-                  </span>
-                  {(j as any).specialization ? (
+                  <span className="font-semibold">{j.name}</span>
+                  {j.specialization ? (
                     <p className="text-sm text-gray-500">
-                      {(j as any).specialization?.name ||
-                        (j as any).specialization}
+                      {specializationName(j.specialization)}
                     </p>
                   ) : null}
                   {j.city ? (
                     <p className="text-sm text-gray-500">{j.city}</p>
                   ) : null}
-                  {j.type ? (
+                  {j.type && isBusinessType(j.type) ? (
                     <span className="inline-block mt-2 text-xs bg-gray-100 px-2 py-1 rounded">
-                      {BUSINESS_TYPE_LABELS[j.type as BusinessType] || j.type}
+                      {BUSINESS_TYPE_LABELS[j.type]}
                     </span>
                   ) : null}
                 </Link>

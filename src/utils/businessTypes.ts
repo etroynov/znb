@@ -6,3 +6,9 @@ export const BUSINESS_TYPE_LABELS: Record<BusinessType, string> = {
   shop: 'Sklep',
   individual: 'Osoba prywatna',
 };
+
+export function isBusinessType(
+  value: string | null | undefined,
+): value is BusinessType {
+  return value != null && BUSINESS_TYPES.includes(value as BusinessType);
+}

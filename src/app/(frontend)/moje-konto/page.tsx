@@ -18,7 +18,6 @@ interface Business {
   id: string;
   name: string;
   slug: string;
-  brandName: string | null;
   specialization: string | null;
   type: 'studio' | 'shop' | 'individual' | null;
   city: string | null;
@@ -56,7 +55,6 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   const [name, setName] = useState('');
-  const [brandName, setBrandName] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [slug, setSlug] = useState('');
   const [type, setType] = useState<'studio' | 'shop' | 'individual' | ''>('');
@@ -128,7 +126,6 @@ export default function DashboardPage() {
       setOrgId(org.id);
       setOrgStatus(org.status || 'draft');
       setName(org.name || '');
-      setBrandName(org.brandName || '');
       setSpecialization(org.specialization || '');
       setSlug(org.slug || '');
       setType(org.type || '');
@@ -193,7 +190,6 @@ export default function DashboardPage() {
 
     const body: Record<string, unknown> = {
       name,
-      brandName: brandName || undefined,
       specialization: specialization || undefined,
       slug,
       type: type || undefined,
@@ -372,22 +368,6 @@ export default function DashboardPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="brandName"
-                className="block text-sm font-medium mb-1"
-              >
-                Brand name
-              </label>
-              <input
-                id="brandName"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                placeholder="e.g. Kamaryd"
                 className="w-full border rounded-lg px-3 py-2"
               />
             </div>

@@ -12,7 +12,7 @@ export const Events: CollectionConfig = {
   },
   access: {
     read: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (user) {
         return {
@@ -20,7 +20,7 @@ export const Events: CollectionConfig = {
             { status: { equals: 'published' } },
             { owner: { equals: user.id } },
           ],
-        } as any;
+        };
       }
       return {
         status: { equals: 'published' },
@@ -28,7 +28,7 @@ export const Events: CollectionConfig = {
     },
     create: ({ req: { user } }) => Boolean(user),
     update: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -36,7 +36,7 @@ export const Events: CollectionConfig = {
       };
     },
     delete: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -48,9 +48,9 @@ export const Events: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ req, data }) => {
-        const user = req.user as { collection?: string } | undefined;
+        const user = req.user;
         if (!data?.owner && user?.collection === 'jewelers') {
-          return { ...data, owner: req.user!.id };
+          return { ...data, owner: user.id };
         }
         return data;
       },

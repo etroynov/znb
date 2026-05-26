@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 type Props = {
-  header: any[];
+  header: [string, string];
 };
 
 export const TwoColumn = ({ header, children }: PropsWithChildren<Props>) => (

@@ -5,6 +5,12 @@ import { validateSlug } from '@/utils/validateSlug';
 
 const COLLECTION_NAME = 'posts' as const;
 
+interface QueryOptions {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+}
+
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
     validateSlug(slug);
@@ -40,7 +46,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   }
 }
 
-export async function getAllPosts(options: any = {}): Promise<Post[]> {
+export async function getAllPosts(options: QueryOptions = {}): Promise<Post[]> {
   try {
     const { limit: rawLimit, offset = 0, sort = '-createdAt' } = options;
 
@@ -49,7 +55,7 @@ export async function getAllPosts(options: any = {}): Promise<Post[]> {
     const payload = await getPayloadClient();
     const startTime = Date.now();
 
-    const whereClause: any = {
+    const whereClause = {
       _status: {
         equals: 'published',
       },

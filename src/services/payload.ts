@@ -1,7 +1,7 @@
 import { getPayload } from 'payload';
 import config from '@/payload.config';
 
-let cachedPayload: any = null;
+let cachedPayload: Awaited<ReturnType<typeof getPayload>> | null = null;
 
 export async function getPayloadClient() {
   if (cachedPayload) {

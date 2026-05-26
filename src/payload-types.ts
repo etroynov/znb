@@ -185,7 +185,6 @@ export interface User {
 export interface Business {
   id: string;
   name: string;
-  brandName?: string | null;
   specialization?: (string | null) | Specialization;
   bio?: string | null;
   slug: string;
@@ -264,6 +263,7 @@ export interface Jeweler {
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
+  role?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -610,7 +610,6 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface BusinessesSelect<T extends boolean = true> {
   name?: T;
-  brandName?: T;
   specialization?: T;
   bio?: T;
   slug?: T;
@@ -665,6 +664,7 @@ export interface JewelersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   phone?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

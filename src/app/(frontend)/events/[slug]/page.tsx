@@ -3,8 +3,7 @@ import { Building2, Calendar, MapPin, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getEventBySlug } from '@/services/events';
-import type { EventType } from '@/utils/eventTypes';
-import { EVENT_TYPE_LABELS } from '@/utils/eventTypes';
+import { EVENT_TYPE_LABELS, isEventType } from '@/utils/eventTypes';
 import { Serializer } from '../../_components/Serializer';
 
 type Props = {
@@ -95,7 +94,7 @@ export default async function EventDetailPage({ params }: Props) {
           {event.type ? (
             <span className="inline-flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full mb-3">
               <Tag size={14} />
-              {EVENT_TYPE_LABELS[event.type as EventType] || event.type}
+              {isEventType(event.type) ? EVENT_TYPE_LABELS[event.type] : event.type}
             </span>
           ) : null}
           <h1 className="text-3xl font-bold mb-4">{event.name}</h1>

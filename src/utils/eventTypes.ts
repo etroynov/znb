@@ -14,3 +14,9 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   news: 'Aktualności',
   other: 'Inne',
 };
+
+export function isEventType(
+  value: string | null | undefined,
+): value is EventType {
+  return value != null && EVENT_TYPES.includes(value as EventType);
+}

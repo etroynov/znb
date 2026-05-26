@@ -8,7 +8,7 @@ export const Businesses: CollectionConfig = {
   },
   access: {
     read: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (user) {
         return {
@@ -16,19 +16,19 @@ export const Businesses: CollectionConfig = {
             { status: { equals: 'approved' } },
             { owner: { equals: user.id } },
           ],
-        } as any;
+        };
       }
       return {
         status: { equals: 'approved' },
       };
     },
     create: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       return false;
     },
     update: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -36,7 +36,7 @@ export const Businesses: CollectionConfig = {
       };
     },
     delete: ({ req: { user } }) => {
-      if ((user as unknown as Record<string, unknown>)?.role === 'admin')
+      if (user?.role === 'admin')
         return true;
       if (!user) return false;
       return {
@@ -48,7 +48,7 @@ export const Businesses: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ req, data, operation, originalDoc }) => {
-        const user = req.user as { collection?: string } | undefined;
+        const user = req.user;
 
         if (
           operation === 'create' &&
@@ -63,7 +63,7 @@ export const Businesses: CollectionConfig = {
           'status' in data &&
           data.status !== originalDoc?.status
         ) {
-          const isAdmin = (user as any)?.role === 'admin';
+          const isAdmin = user?.role === 'admin';
           if (!isAdmin && data.status !== 'pending') {
             throw new Error('Only admins can approve or reject businesses');
           }
@@ -79,14 +79,6 @@ export const Businesses: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Name',
-    },
-    {
-      name: 'brandName',
-      type: 'text',
-      label: 'Brand name',
-      admin: {
-        position: 'sidebar',
-      },
     },
     {
       name: 'specialization',
