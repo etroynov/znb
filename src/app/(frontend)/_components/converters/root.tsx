@@ -54,7 +54,7 @@ export const jsxConverter: JSXConvertersFunction<NodeTypes> = ({
               ) : null}
             </td>
             <td className="p-2 border content-start">
-              {nodesToJSX({ nodes: r.description.root.children })}
+              {nodesToJSX({ nodes: r.description?.root.children ?? [] })}
             </td>
           </tr>
         ))}

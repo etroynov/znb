@@ -65,7 +65,7 @@ export async function getAllPosts(options: QueryOptions = {}): Promise<Post[]> {
       collection: COLLECTION_NAME,
       where: whereClause,
       limit,
-      skip: offset,
+      page: offset ? Math.floor(offset / limit) + 1 : 1,
       sort,
     });
 

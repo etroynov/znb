@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPayload } from 'payload';
+import { combineWhereConstraints } from 'payload/shared';
 import config from '@/payload.config';
 import { BUSINESS_TYPE_LABELS, isBusinessType } from '@/utils/businessTypes';
 import type { Business } from '@/payload-types';
@@ -61,17 +62,20 @@ export default async function HomePage({ searchParams }: Props) {
   const payloadConfig = await config;
   const payload = await getPayload({ config: payloadConfig });
 
-  const conditions = [
-    { status: { equals: 'approved' } },
-    ...(search ? [{ name: { contains: search } }] : []),
-    ...(city ? [{ city: { contains: city } }] : []),
-    ...(type ? [{ type: { equals: type } }] : []),
-    ...(specialization ? [{ specialization: { equals: specialization } }] : []),
-  ];
-
   const { docs: jewelers, totalDocs } = await payload.find({
     collection: 'businesses',
-    where: { and: conditions },
+    where: combineWhereConstraints(
+      [
+        { status: { equals: 'approved' } },
+        ...(search ? [{ name: { contains: search } }] : []),
+        ...(city ? [{ city: { contains: city } }] : []),
+        ...(type ? [{ type: { equals: type } }] : []),
+        ...(specialization
+          ? [{ specialization: { equals: specialization } }]
+          : []),
+      ],
+      'and',
+    ),
     limit: 50,
   });
 

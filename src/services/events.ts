@@ -58,7 +58,7 @@ export async function getAllEvents(options: QueryOptions = {}): Promise<Event[]>
         status: { equals: 'published' },
       },
       limit,
-      skip: offset,
+      page: offset ? Math.floor(offset / limit) + 1 : 1,
       sort,
     });
 

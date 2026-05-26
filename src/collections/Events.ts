@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { combineWhereConstraints } from 'payload/shared';
 
 export const Events: CollectionConfig = {
   slug: 'events',
@@ -15,34 +16,40 @@ export const Events: CollectionConfig = {
       if (user?.role === 'admin')
         return true;
       if (user) {
-        return {
-          or: [
+        return combineWhereConstraints(
+          [
             { status: { equals: 'published' } },
             { owner: { equals: user.id } },
           ],
-        };
+          'or',
+        );
       }
-      return {
-        status: { equals: 'published' },
-      };
+      return combineWhereConstraints(
+        [{ status: { equals: 'published' } }],
+        'and',
+      );
     },
     create: ({ req: { user } }) => Boolean(user),
     update: ({ req: { user } }) => {
       if (user?.role === 'admin')
         return true;
       if (!user) return false;
-      return {
-        owner: { equals: user.id },
-      };
+      return combineWhereConstraints(
+        [{ owner: { equals: user.id } }],
+        'and',
+      );
     },
     delete: ({ req: { user } }) => {
       if (user?.role === 'admin')
         return true;
       if (!user) return false;
-      return {
-        owner: { equals: user.id },
-        status: { equals: 'draft' },
-      };
+      return combineWhereConstraints(
+        [
+          { owner: { equals: user.id } },
+          { status: { equals: 'draft' } },
+        ],
+        'and',
+      );
     },
   },
   hooks: {
