@@ -21,6 +21,7 @@ import { Jewelers } from './collections/Jewelers';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Posts } from './collections/Posts';
+import { Specializations } from './collections/Specializations';
 import { Tags } from './collections/Tags';
 import { Users } from './collections/Users';
 
@@ -51,6 +52,7 @@ export default buildConfig({
     Posts,
     Pages,
     Tags,
+    Specializations,
     Events,
   ],
   editor: lexicalEditor({

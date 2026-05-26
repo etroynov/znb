@@ -2,6 +2,7 @@
 
 import { Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import type { BusinessType } from '@/utils/businessTypes';
 import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 
@@ -13,6 +14,17 @@ export function SearchForm() {
   const currentCity = searchParams.get('city') || '';
   const currentType = searchParams.get('type') || '';
 
+  const [specializations, setSpecializations] = useState<
+    { id: string; name: string }[]
+  >([]);
+
+  useEffect(() => {
+    fetch('/api/specializations?limit=100')
+      .then((r) => r.json())
+      .then((data) => setSpecializations(data.docs || []))
+      .catch(() => {});
+  }, []);
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -20,9 +32,11 @@ export function SearchForm() {
     const search = form.get('search')?.toString().trim();
     const city = form.get('city')?.toString().trim();
     const type = form.get('type')?.toString();
+    const specialization = form.get('specialization')?.toString();
     if (search) params.set('search', search);
     if (city) params.set('city', city);
     if (type) params.set('type', type);
+    if (specialization) params.set('specialization', specialization);
     const qs = params.toString();
     router.push(qs ? `/?${qs}` : '/');
   }
@@ -61,13 +75,18 @@ export function SearchForm() {
         >
           <option value="">Wszystkie typy</option>
           {(
-            Object.entries(BUSINESS_TYPE_LABELS) as [
-              BusinessType,
-              string,
-            ][]
+            Object.entries(BUSINESS_TYPE_LABELS) as [BusinessType, string][]
           ).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
+            </option>
+          ))}
+        </select>
+        <select name="specialization" className="border rounded-lg px-3 py-2">
+          <option value="">Wszystkie specjalizacje</option>
+          {specializations.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
             </option>
           ))}
         </select>

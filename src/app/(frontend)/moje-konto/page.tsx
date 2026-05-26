@@ -9,14 +9,21 @@ interface Service {
   price: string;
 }
 
+interface SocialEntry {
+  platform: string;
+  link: string;
+}
+
 interface Business {
   id: string;
   name: string;
   slug: string;
-  type: 'studio' | 'shop' | null;
+  brandName: string | null;
+  specialization: string | null;
+  type: 'studio' | 'shop' | 'individual' | null;
   city: string | null;
   address: string | null;
-  content: Record<string, unknown> | null;
+  bio: string | null;
   contacts: { type: string; value: string }[];
   socials: { name: string; link: string }[];
   services: Service[];
@@ -24,10 +31,24 @@ interface Business {
   location: { lat: number | null; lng: number | null };
 }
 
+const SOCIAL_PLATFORMS = [
+  'Instagram',
+  'Facebook',
+  'TikTok',
+  'YouTube',
+  'Pinterest',
+  'Behance',
+  'LinkedIn',
+  'X (Twitter)',
+  'VK',
+  'Telegram',
+  'Other',
+] as const;
+
 type PageState = 'loading' | 'unauthenticated' | 'none' | 'edit';
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const [pageState, setPageState] = useState<PageState>('loading');
   const [orgId, setOrgId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -35,18 +56,23 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   const [name, setName] = useState('');
+  const [brandName, setBrandName] = useState('');
+  const [specialization, setSpecialization] = useState('');
   const [slug, setSlug] = useState('');
   const [type, setType] = useState<'studio' | 'shop' | 'individual' | ''>('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
-  const [description, setDescription] = useState('');
+  const [bio, setBio] = useState('');
 
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
 
-  const [instagram, setInstagram] = useState('');
-  const [facebook, setFacebook] = useState('');
+  const [socials, setSocials] = useState<SocialEntry[]>([]);
+
+  const [specializationList, setSpecializationList] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   const [services, setServices] = useState<Service[]>([]);
   const [lat, setLat] = useState('');
@@ -61,6 +87,14 @@ export default function DashboardPage() {
 
   async function loadUser() {
     try {
+      const specRes = await fetch('/api/specializations?limit=100', {
+        credentials: 'include',
+      });
+      if (specRes.ok) {
+        const specData = await specRes.json();
+        setSpecializationList(specData.docs || []);
+      }
+
       const meRes = await fetch('/api/jewelers/me', {
         credentials: 'include',
       });
@@ -94,15 +128,21 @@ export default function DashboardPage() {
       setOrgId(org.id);
       setOrgStatus(org.status || 'draft');
       setName(org.name || '');
+      setBrandName(org.brandName || '');
+      setSpecialization(org.specialization || '');
       setSlug(org.slug || '');
       setType(org.type || '');
       setCity(org.city || '');
       setAddress(org.address || '');
+      setBio(org.bio || '');
       setPhone(getContactValue(org.contacts, 'phone'));
       setEmail(getContactValue(org.contacts, 'email'));
       setWebsite(getContactValue(org.contacts, 'website'));
-      setInstagram(getSocialValue(org.socials, 'Instagram'));
-      setFacebook(getSocialValue(org.socials, 'Facebook'));
+      setSocials(
+        (org.socials || [])
+          .filter((s) => s.link)
+          .map((s) => ({ platform: s.name, link: s.link })),
+      );
       setServices(org.services || []);
       setLat(org.location?.lat?.toString() || '');
       setLng(org.location?.lng?.toString() || '');
@@ -117,13 +157,6 @@ export default function DashboardPage() {
     type: string,
   ): string {
     return contacts?.find((c) => c.type === type)?.value || '';
-  }
-
-  function getSocialValue(
-    socials: { name: string; link: string }[],
-    name: string,
-  ): string {
-    return socials?.find((s) => s.name === name)?.link || '';
   }
 
   function addService() {
@@ -154,18 +187,21 @@ export default function DashboardPage() {
     if (email) contacts.push({ type: 'email', value: email });
     if (website) contacts.push({ type: 'website', value: website });
 
-    const socials = [];
-    if (instagram) socials.push({ name: 'Instagram', link: instagram });
-    if (facebook) socials.push({ name: 'Facebook', link: facebook });
+    const socialsPayload = socials
+      .filter((s) => s.platform && s.link)
+      .map((s) => ({ name: s.platform, link: s.link }));
 
     const body: Record<string, unknown> = {
       name,
+      brandName: brandName || undefined,
+      specialization: specialization || undefined,
       slug,
       type: type || undefined,
       city: city || undefined,
       address: address || undefined,
+      bio: bio || undefined,
       contacts,
-      socials,
+      socials: socialsPayload,
       services: services.filter((s) => s.name),
       location: {
         lat: lat ? Number(lat) : null,
@@ -341,6 +377,44 @@ export default function DashboardPage() {
             </div>
 
             <div>
+              <label
+                htmlFor="brandName"
+                className="block text-sm font-medium mb-1"
+              >
+                Brand name
+              </label>
+              <input
+                id="brandName"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="e.g. Kamaryd"
+                className="w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="specialization"
+                className="block text-sm font-medium mb-1"
+              >
+                Specialization
+              </label>
+              <select
+                id="specialization"
+                value={specialization}
+                onChange={(e) => setSpecialization(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2"
+              >
+                <option value="">Select specialization</option>
+                {specializationList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="slug" className="block text-sm font-medium mb-1">
                 URL slug <span className="text-red-500">*</span>
               </label>
@@ -361,7 +435,9 @@ export default function DashboardPage() {
                 id="type"
                 value={type}
                 onChange={(e) =>
-                  setType(e.target.value as 'studio' | 'shop' | '')
+                  setType(
+                    e.target.value as 'studio' | 'shop' | 'individual' | '',
+                  )
                 }
                 className="w-full border rounded-lg px-3 py-2"
               >
@@ -400,16 +476,13 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium mb-1"
-              >
-                Description
+              <label htmlFor="bio" className="block text-sm font-medium mb-1">
+                Short description
               </label>
               <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                id="bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
                 rows={4}
                 className="w-full border rounded-lg px-3 py-2"
               />
@@ -468,41 +541,63 @@ export default function DashboardPage() {
 
         {/* Social Media */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Social Media</h2>
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="instagram"
-                className="block text-sm font-medium mb-1"
-              >
-                Instagram URL
-              </label>
-              <input
-                id="instagram"
-                type="url"
-                value={instagram}
-                onChange={(e) => setInstagram(e.target.value)}
-                placeholder="https://instagram.com/username"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="facebook"
-                className="block text-sm font-medium mb-1"
-              >
-                Facebook URL
-              </label>
-              <input
-                id="facebook"
-                type="url"
-                value={facebook}
-                onChange={(e) => setFacebook(e.target.value)}
-                placeholder="https://facebook.com/username"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Social Media</h2>
+            <button
+              type="button"
+              onClick={() =>
+                setSocials([...socials, { platform: 'Instagram', link: '' }])
+              }
+              className="flex items-center gap-1 text-sm text-black underline"
+            >
+              <Plus size={16} /> Add social
+            </button>
           </div>
+          {socials.length === 0 ? (
+            <p className="text-sm text-gray-400">No social links added yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {socials.map((social, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <select
+                    value={social.platform}
+                    onChange={(e) => {
+                      const updated = [...socials];
+                      updated[i] = { ...updated[i], platform: e.target.value };
+                      setSocials(updated);
+                    }}
+                    className="w-40 border rounded-lg px-3 py-2"
+                  >
+                    {SOCIAL_PLATFORMS.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    value={social.link}
+                    onChange={(e) => {
+                      const updated = [...socials];
+                      updated[i] = { ...updated[i], link: e.target.value };
+                      setSocials(updated);
+                    }}
+                    placeholder="https://..."
+                    type="url"
+                    className="flex-1 border rounded-lg px-3 py-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSocials(socials.filter((_, idx) => idx !== i))
+                    }
+                    className="mt-2 text-red-500"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Services */}

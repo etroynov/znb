@@ -55,7 +55,7 @@ export const Businesses: CollectionConfig = {
           !data?.owner &&
           user?.collection === 'jewelers'
         ) {
-          return { ...data, owner: req.user!.id };
+          return { ...data, owner: req.user?.id };
         }
 
         if (
@@ -79,6 +79,28 @@ export const Businesses: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Name',
+    },
+    {
+      name: 'brandName',
+      type: 'text',
+      label: 'Brand name',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'specialization',
+      type: 'relationship',
+      relationTo: 'specializations',
+      label: 'Specialization',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'bio',
+      type: 'textarea',
+      label: 'Short description',
     },
     {
       name: 'slug',

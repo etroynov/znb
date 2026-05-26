@@ -7,7 +7,12 @@ import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 import { SearchForm } from './_components/SearchForm';
 
 interface Props {
-  searchParams: Promise<{ search?: string; city?: string; type?: string }>;
+  searchParams: Promise<{
+    search?: string;
+    city?: string;
+    type?: string;
+    specialization?: string;
+  }>;
 }
 
 export async function generateMetadata({
@@ -43,7 +48,7 @@ export async function generateMetadata({
 }
 
 export default async function HomePage({ searchParams }: Props) {
-  const { search, city, type } = await searchParams;
+  const { search, city, type, specialization } = await searchParams;
 
   const payloadConfig = await config;
   const payload = await getPayload({ config: payloadConfig });
@@ -54,7 +59,7 @@ export default async function HomePage({ searchParams }: Props) {
 
   if (search) {
     (where.and as Record<string, unknown>[]).push({
-      name: { contains: search },
+      or: [{ name: { contains: search } }, { brandName: { contains: search } }],
     });
   }
   if (city) {
@@ -67,6 +72,11 @@ export default async function HomePage({ searchParams }: Props) {
       type: { equals: type },
     });
   }
+  if (specialization) {
+    (where.and as Record<string, unknown>[]).push({
+      specialization: { equals: specialization },
+    });
+  }
 
   const { docs: jewelers, totalDocs } = await payload.find({
     collection: 'businesses',
@@ -74,7 +84,7 @@ export default async function HomePage({ searchParams }: Props) {
     limit: 50,
   });
 
-  const hasFilters = search || city || type;
+  const hasFilters = search || city || type || specialization;
 
   const schemaMarkup = {
     '@context': 'https://schema.org',
@@ -150,14 +160,21 @@ export default async function HomePage({ searchParams }: Props) {
                       className="w-16 h-16 object-cover rounded mb-3"
                     />
                   ) : null}
-                  <span className="font-semibold">{j.name}</span>
+                  <span className="font-semibold">
+                    {(j as any).brandName || j.name}
+                  </span>
+                  {(j as any).specialization ? (
+                    <p className="text-sm text-gray-500">
+                      {(j as any).specialization?.name ||
+                        (j as any).specialization}
+                    </p>
+                  ) : null}
                   {j.city ? (
                     <p className="text-sm text-gray-500">{j.city}</p>
                   ) : null}
                   {j.type ? (
                     <span className="inline-block mt-2 text-xs bg-gray-100 px-2 py-1 rounded">
-                      {BUSINESS_TYPE_LABELS[j.type as BusinessType] ||
-                        j.type}
+                      {BUSINESS_TYPE_LABELS[j.type as BusinessType] || j.type}
                     </span>
                   ) : null}
                 </Link>

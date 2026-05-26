@@ -1,10 +1,13 @@
+import type { LucideIcon } from 'lucide-react';
 import {
   Camera,
   Globe,
   Mail,
   MapPin,
   MessageCircle,
+  Music,
   Phone,
+  Play,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -13,6 +16,19 @@ import config from '@/payload.config';
 import type { BusinessType } from '@/utils/businessTypes';
 import { BUSINESS_TYPE_LABELS } from '@/utils/businessTypes';
 import { Serializer } from '../_components/Serializer';
+
+const SOCIAL_ICONS: Record<string, LucideIcon> = {
+  instagram: Camera,
+  facebook: MessageCircle,
+  tiktok: Music,
+  youtube: Play,
+  pinterest: Globe,
+  behance: Globe,
+  linkedin: Globe,
+  x: Globe,
+  telegram: MessageCircle,
+  vk: Globe,
+};
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -132,12 +148,21 @@ export default async function JewelerPage({ params }: Props) {
           />
         ) : null}
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold">{org.name}</h1>
+          <h1 className="text-3xl font-bold">{org.brandName || org.name}</h1>
+          {org.brandName ? (
+            <p className="text-lg text-gray-500 mt-1">{org.name}</p>
+          ) : null}
           <div className="flex flex-wrap gap-2 mt-2">
             {org.type ? (
               <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-                {BUSINESS_TYPE_LABELS[org.type as BusinessType] ||
-                  org.type}
+                {BUSINESS_TYPE_LABELS[org.type as BusinessType] || org.type}
+              </span>
+            ) : null}
+            {org.specialization &&
+            typeof org.specialization === 'object' &&
+            'name' in org.specialization ? (
+              <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+                {(org.specialization as { name: string }).name}
               </span>
             ) : null}
             {org.city ? (
@@ -152,6 +177,14 @@ export default async function JewelerPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Bio */}
+          {org.bio ? (
+            <section>
+              <h2 className="text-xl font-semibold mb-3">About</h2>
+              <p className="text-gray-700 leading-relaxed">{org.bio}</p>
+            </section>
+          ) : null}
+
           {/* Description */}
           {org.content ? (
             <section>
@@ -267,12 +300,8 @@ export default async function JewelerPage({ params }: Props) {
               <h2 className="text-lg font-semibold mb-3">Social Media</h2>
               <ul className="space-y-2">
                 {org.socials.map((social, i) => {
-                  const Icon =
-                    social.name?.toLowerCase() === 'instagram'
-                      ? Camera
-                      : social.name?.toLowerCase() === 'facebook'
-                        ? MessageCircle
-                        : Globe;
+                  const key = social.name?.toLowerCase() || '';
+                  const Icon = SOCIAL_ICONS[key] || Globe;
                   return social.link ? (
                     <li key={i}>
                       <a

@@ -75,6 +75,7 @@ export interface Config {
     posts: Post;
     pages: Page;
     tags: Tag;
+    specializations: Specialization;
     events: Event;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -90,6 +91,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
+    specializations: SpecializationsSelect<false> | SpecializationsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -183,6 +185,9 @@ export interface User {
 export interface Business {
   id: string;
   name: string;
+  brandName?: string | null;
+  specialization?: (string | null) | Specialization;
+  bio?: string | null;
   slug: string;
   status?: ('draft' | 'pending' | 'approved' | 'rejected') | null;
   owner?: (string | null) | Jeweler;
@@ -236,6 +241,17 @@ export interface Business {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "specializations".
+ */
+export interface Specialization {
+  id: string;
+  name: string;
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -504,6 +520,10 @@ export interface PayloadLockedDocument {
         value: string | Tag;
       } | null)
     | ({
+        relationTo: 'specializations';
+        value: string | Specialization;
+      } | null)
+    | ({
         relationTo: 'events';
         value: string | Event;
       } | null);
@@ -590,6 +610,9 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface BusinessesSelect<T extends boolean = true> {
   name?: T;
+  brandName?: T;
+  specialization?: T;
+  bio?: T;
   slug?: T;
   status?: T;
   owner?: T;
@@ -764,6 +787,16 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "specializations_select".
+ */
+export interface SpecializationsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   updatedAt?: T;
