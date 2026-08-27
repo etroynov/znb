@@ -1,45 +1,47 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
     const data = {
-      email: form.get("email"),
-      password: form.get("password"),
-      firstName: form.get("firstName"),
-      lastName: form.get("lastName"),
-      phone: form.get("phone"),
+      email: form.get('email'),
+      password: form.get('password'),
+      firstName: form.get('firstName'),
+      lastName: form.get('lastName'),
+      phone: form.get('phone'),
     };
 
     try {
-      const res = await fetch("/api/jewelers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/jewelers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!res.ok) {
         const err = await res.json();
-        setError(err.message || err.errors?.[0]?.message || "Registration failed");
+        setError(
+          err.message || err.errors?.[0]?.message || 'Registration failed',
+        );
         return;
       }
 
-      router.push("/moje-konto");
+      router.push('/moje-konto');
     } catch {
-      setError("Connection error. Please try again.");
+      setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,10 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium mb-1"
+            >
               First Name
             </label>
             <input
@@ -64,7 +69,10 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium mb-1"
+            >
               Last Name
             </label>
             <input
@@ -116,21 +124,19 @@ export default function RegisterPage() {
           />
         </div>
 
-        {error ? (
-          <p className="text-red-600 text-sm">{error}</p>
-        ) : null}
+        {error ? <p className="text-red-600 text-sm">{error}</p> : null}
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-black text-white rounded-lg px-4 py-2 disabled:opacity-50"
         >
-          {loading ? "Creating account..." : "Create account"}
+          {loading ? 'Creating account...' : 'Create account'}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-center text-gray-500">
-        Already have an account?{" "}
+        Already have an account?{' '}
         <Link href="/logowanie" className="text-black underline">
           Log in
         </Link>

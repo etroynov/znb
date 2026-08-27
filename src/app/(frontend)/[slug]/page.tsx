@@ -10,6 +10,7 @@ import {
   Play,
 } from 'lucide-react';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
@@ -144,7 +145,9 @@ export default async function JewelerPage({ params }: Props) {
       {/* Header */}
       <header className="flex items-start gap-6 mb-8">
         {logoUrl ? (
-          <img
+          <Image
+            height={96}
+            width={96}
             src={logoUrl}
             alt={logoAlt}
             className="w-24 h-24 object-cover rounded-full shrink-0"
@@ -175,19 +178,11 @@ export default async function JewelerPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Bio */}
-          {org.bio ? (
-            <section>
-              <h2 className="text-xl font-semibold mb-3">About</h2>
-              <p className="text-gray-700 leading-relaxed">{org.bio}</p>
-            </section>
-          ) : null}
-
           {/* Description */}
           {org.content ? (
             <section>
-              <h2 className="text-xl font-semibold mb-3">About</h2>
-              <div className="prose max-w-none">
+              <hr />
+              <div className="prose max-w-none pt-4">
                 <Serializer data={org.content} />
               </div>
             </section>
@@ -202,7 +197,7 @@ export default async function JewelerPage({ params }: Props) {
                   const img =
                     typeof item.image === 'string' ? null : item.image;
                   return img?.url ? (
-                    <img
+                    <Image
                       key={item.id}
                       src={img.url}
                       alt={img.alt || ''}

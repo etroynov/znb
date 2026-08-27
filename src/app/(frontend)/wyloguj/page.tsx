@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
     async function logout() {
-      await fetch("/api/jewelers/logout", {
-        method: "POST",
-        credentials: "include",
+      await fetch('/api/jewelers/logout', {
+        method: 'POST',
+        credentials: 'include',
       });
-      router.push("/");
+      router.push('/');
     }
     logout();
   }, [router]);
