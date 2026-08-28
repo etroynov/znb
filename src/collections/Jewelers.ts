@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook, CollectionConfig } from 'payload';
+import { admins, adminsField, anyone, or, self } from '@/access';
 
 function slugify(text: string): string {
   return text
@@ -55,28 +56,10 @@ export const Jewelers: CollectionConfig = {
     afterChange: [afterChangeHook],
   },
   access: {
-    create: () => true,
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return {
-        id: { equals: user.id },
-      };
-    },
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return {
-        id: { equals: user.id },
-      };
-    },
-    delete: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      return false;
-    },
+    create: anyone,
+    read: or(admins, self),
+    update: or(admins, self),
+    delete: admins,
   },
   fields: [
     {
@@ -98,6 +81,10 @@ export const Jewelers: CollectionConfig = {
       name: 'role',
       type: 'text',
       defaultValue: 'jeweler',
+      access: {
+        create: adminsField,
+        update: adminsField,
+      },
       admin: {
         readOnly: true,
         position: 'sidebar',

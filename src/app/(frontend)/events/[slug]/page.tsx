@@ -2,8 +2,10 @@ import { format } from 'date-fns';
 import { Building2, Calendar, MapPin, Tag } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { EventJsonLd } from 'next-seo';
 import { getEventBySlug } from '@/services/events';
 import { EVENT_TYPE_LABELS, isEventType } from '@/utils/eventTypes';
+import { relationName } from '@/utils/relationName';
 import { Serializer } from '../../_components/Serializer';
 
 type Props = {
@@ -43,45 +45,25 @@ export default async function EventDetailPage({ params }: Props) {
     return <div>Nie znaleziono wydarzenia</div>;
   }
 
-  const schemaMarkup = {
-    '@context': 'https://schema.org',
-    '@type': 'Event',
-    name: event.name,
-    description: event.excerpt || event.name,
-    ...(event.date ? { startDate: new Date(event.date).toISOString() } : {}),
-    ...(event.endDate
-      ? { endDate: new Date(event.endDate).toISOString() }
-      : {}),
-    ...(event.city
-      ? {
-          location: {
-            '@type': 'Place',
-            address: {
-              '@type': 'PostalAddress',
-              addressLocality: event.city,
-            },
-          },
-        }
-      : {}),
-    ...(event.organizer &&
-    typeof event.organizer === 'object' &&
-    'name' in event.organizer
-      ? {
-          organizer: {
-            '@type': 'Organization',
-            name: event.organizer.name,
-          },
-        }
-      : {}),
-    url: `/events/${event.slug}`,
-  };
+  const organizerName = relationName(event.organizer);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-      />
+      {/* Google requires name + startDate + location for Event; without them
+          the markup is invalid, so it is omitted rather than emitted partial. */}
+      {event.date && event.city ? (
+        <EventJsonLd
+          name={event.name}
+          description={event.excerpt || event.name}
+          startDate={new Date(event.date).toISOString()}
+          endDate={
+            event.endDate ? new Date(event.endDate).toISOString() : undefined
+          }
+          location={{ address: { addressLocality: event.city } }}
+          organizer={organizerName ? { name: organizerName } : undefined}
+          url={`/events/${event.slug}`}
+        />
+      ) : null}
       <div>
         <Link
           href="/events"
@@ -94,7 +76,9 @@ export default async function EventDetailPage({ params }: Props) {
           {event.type ? (
             <span className="inline-flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full mb-3">
               <Tag size={14} />
-              {isEventType(event.type) ? EVENT_TYPE_LABELS[event.type] : event.type}
+              {isEventType(event.type)
+                ? EVENT_TYPE_LABELS[event.type]
+                : event.type}
             </span>
           ) : null}
           <h1 className="text-3xl font-bold mb-4">{event.name}</h1>

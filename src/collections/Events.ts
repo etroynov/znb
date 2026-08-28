@@ -1,67 +1,34 @@
 import type { CollectionConfig } from 'payload';
-import { combineWhereConstraints } from 'payload/shared';
+import {
+  admins,
+  adminsField,
+  and,
+  authenticated,
+  or,
+  ownedByMe,
+  published,
+  unpublished,
+} from '@/access';
+import { assignOwner } from '@/hooks/assignOwner';
 
 export const Events: CollectionConfig = {
   slug: 'events',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'type', 'date', 'city', 'status'],
+    defaultColumns: ['name', 'type', 'date', 'city', 'cancelled'],
   },
   versions: {
     drafts: true,
     maxPerDoc: 1,
   },
   access: {
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (user) {
-        return combineWhereConstraints(
-          [
-            { status: { equals: 'published' } },
-            { owner: { equals: user.id } },
-          ],
-          'or',
-        );
-      }
-      return combineWhereConstraints(
-        [{ status: { equals: 'published' } }],
-        'and',
-      );
-    },
-    create: ({ req: { user } }) => Boolean(user),
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return combineWhereConstraints(
-        [{ owner: { equals: user.id } }],
-        'and',
-      );
-    },
-    delete: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return combineWhereConstraints(
-        [
-          { owner: { equals: user.id } },
-          { status: { equals: 'draft' } },
-        ],
-        'and',
-      );
-    },
+    read: or(admins, published, ownedByMe),
+    create: authenticated,
+    update: or(admins, ownedByMe),
+    delete: or(admins, and(ownedByMe, unpublished)),
   },
   hooks: {
-    beforeChange: [
-      ({ req, data }) => {
-        const user = req.user;
-        if (!data?.owner && user?.collection === 'jewelers') {
-          return { ...data, owner: user.id };
-        }
-        return data;
-      },
-    ],
+    beforeChange: [assignOwner],
   },
   fields: [
     {
@@ -92,16 +59,15 @@ export const Events: CollectionConfig = {
       ],
     },
     {
-      name: 'status',
-      type: 'select',
-      label: 'Status',
-      defaultValue: 'published',
-      admin: { position: 'sidebar' },
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-        { label: 'Cancelled', value: 'cancelled' },
-      ],
+      name: 'cancelled',
+      type: 'checkbox',
+      label: 'Cancelled',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description:
+          'A cancelled event stays published so attendees can see it is off.',
+      },
     },
     {
       name: 'organizer',
@@ -115,6 +81,10 @@ export const Events: CollectionConfig = {
       type: 'relationship',
       relationTo: 'jewelers',
       label: 'Owner',
+      access: {
+        create: adminsField,
+        update: adminsField,
+      },
       admin: { position: 'sidebar' },
     },
     {

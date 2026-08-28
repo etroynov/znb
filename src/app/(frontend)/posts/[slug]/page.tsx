@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import type { Metadata } from 'next';
+import { ArticleJsonLd } from 'next-seo';
 import { getPostBySlug } from '@/services/posts';
 import { Serializer } from '../../_components/Serializer';
 
@@ -50,22 +51,17 @@ export default async function PostDetailPage({ params }: Props) {
     return <div>Nie znaleziono strony</div>;
   }
 
-  const schemaMarkup = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.name,
-    dateCreated: post.createdAt,
-    datePublished: post.createdAt,
-    dateModified: post.updatedAt || post.createdAt,
-    url: `/posts/${post.slug}`,
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-      />
+      {post.name ? (
+        <ArticleJsonLd
+          type="BlogPosting"
+          headline={post.name}
+          datePublished={post.createdAt}
+          dateModified={post.updatedAt || post.createdAt}
+          url={`/posts/${post.slug}`}
+        />
+      ) : null}
       <div>
         <header>
           <h1 className="text-3xl font-bold mb-3.5">{post.name}</h1>

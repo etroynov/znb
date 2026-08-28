@@ -290,6 +290,7 @@ export interface Jeweler {
 export interface Media {
   id: string;
   alt: string;
+  owner?: (string | null) | Jeweler;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -429,7 +430,10 @@ export interface Event {
   name: string;
   slug: string;
   type?: ('masterclass' | 'exhibition' | 'workshop' | 'news' | 'other') | null;
-  status?: ('draft' | 'published' | 'cancelled') | null;
+  /**
+   * A cancelled event stays published so attendees can see it is off.
+   */
+  cancelled?: boolean | null;
   organizer?: (string | null) | Business;
   owner?: (string | null) | Jeweler;
   date?: string | null;
@@ -688,6 +692,7 @@ export interface JewelersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  owner?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -810,7 +815,7 @@ export interface EventsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   type?: T;
-  status?: T;
+  cancelled?: T;
   organizer?: T;
   owner?: T;
   date?: T;

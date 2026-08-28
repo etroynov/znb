@@ -12,14 +12,13 @@ import {
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { LocalBusinessJsonLd } from 'next-seo';
 import { getPayload } from 'payload';
 import config from '@/payload.config';
 import { BUSINESS_TYPE_LABELS, isBusinessType } from '@/utils/businessTypes';
+import { orUndefined } from '@/utils/orUndefined';
+import { relationName } from '@/utils/relationName';
 import { Serializer } from '../_components/Serializer';
-
-function hasName(value: unknown): value is { name: string } {
-  return typeof value === 'object' && value !== null && 'name' in value;
-}
 
 const SOCIAL_ICONS: Record<string, LucideIcon> = {
   instagram: Camera,
@@ -95,52 +94,27 @@ export default async function JewelerPage({ params }: Props) {
   const phoneContact = org.contacts?.find((c) => c.type === 'phone');
   const emailContact = org.contacts?.find((c) => c.type === 'email');
   const websiteContact = org.contacts?.find((c) => c.type === 'website');
-
-  const schemaMarkup = {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: org.name,
-    ...(logoUrl ? { image: logoUrl } : {}),
-    ...(phoneContact?.value ? { telephone: phoneContact.value } : {}),
-    ...(emailContact?.value ? { email: emailContact.value } : {}),
-    ...(websiteContact?.value ? { url: websiteContact.value } : {}),
-    ...(org.city || org.address
-      ? {
-          address: {
-            '@type': 'PostalAddress',
-            ...(org.address ? { streetAddress: org.address } : {}),
-            ...(org.city ? { addressLocality: org.city } : {}),
-            addressCountry: 'PL',
-          },
-        }
-      : {}),
-    ...(org.location?.lat && org.location?.lng
-      ? {
-          geo: {
-            '@type': 'GeoCoordinates',
-            latitude: org.location.lat,
-            longitude: org.location.lng,
-          },
-        }
-      : {}),
-    ...(org.services?.filter((s) => s.name).length
-      ? {
-          makesOffer: org.services
-            .filter((s) => s.name)
-            .map((s) => ({
-              '@type': 'Offer',
-              name: s.name,
-              ...(s.price ? { price: s.price, priceCurrency: 'PLN' } : {}),
-            })),
-        }
-      : {}),
-  };
+  const specializationLabel = relationName(org.specialization);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+      <LocalBusinessJsonLd
+        type="LocalBusiness"
+        name={org.name}
+        address={{
+          streetAddress: orUndefined(org.address),
+          addressLocality: orUndefined(org.city),
+          addressCountry: 'PL',
+        }}
+        url={orUndefined(websiteContact?.value)}
+        telephone={orUndefined(phoneContact?.value)}
+        email={orUndefined(emailContact?.value)}
+        image={orUndefined(logoUrl)}
+        geo={
+          org.location?.lat && org.location?.lng
+            ? { latitude: org.location.lat, longitude: org.location.lng }
+            : undefined
+        }
       />
       {/* Header */}
       <header className="flex items-start gap-6 mb-8">
@@ -161,9 +135,9 @@ export default async function JewelerPage({ params }: Props) {
                 {BUSINESS_TYPE_LABELS[org.type]}
               </span>
             ) : null}
-            {org.specialization && hasName(org.specialization) ? (
+            {specializationLabel ? (
               <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                {org.specialization.name}
+                {specializationLabel}
               </span>
             ) : null}
             {org.city ? (

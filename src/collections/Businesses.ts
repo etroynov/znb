@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload';
-import { combineWhereConstraints } from 'payload/shared';
+import { admins, adminsField, and, inStatus, or, ownedByMe } from '@/access';
+import { assignOwner } from '@/hooks/assignOwner';
+import {
+  moderationStatusField,
+  moderationWorkflow,
+} from '@/workflow/moderation';
 
 export const Businesses: CollectionConfig = {
   slug: 'businesses',
@@ -8,77 +13,13 @@ export const Businesses: CollectionConfig = {
     defaultColumns: ['name', 'city', 'status', 'type'],
   },
   access: {
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (user) {
-        return combineWhereConstraints(
-          [
-            { status: { equals: 'approved' } },
-            { owner: { equals: user.id } },
-          ],
-          'or',
-        );
-      }
-      return combineWhereConstraints(
-        [{ status: { equals: 'approved' } }],
-        'and',
-      );
-    },
-    create: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      return false;
-    },
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return combineWhereConstraints(
-        [{ owner: { equals: user.id } }],
-        'and',
-      );
-    },
-    delete: ({ req: { user } }) => {
-      if (user?.role === 'admin')
-        return true;
-      if (!user) return false;
-      return combineWhereConstraints(
-        [
-          { owner: { equals: user.id } },
-          { status: { equals: 'draft' } },
-        ],
-        'and',
-      );
-    },
+    read: or(admins, inStatus('approved'), ownedByMe),
+    create: admins,
+    update: or(admins, ownedByMe),
+    delete: or(admins, and(ownedByMe, inStatus('draft'))),
   },
   hooks: {
-    beforeChange: [
-      ({ req, data, operation, originalDoc }) => {
-        const user = req.user;
-
-        if (
-          operation === 'create' &&
-          !data?.owner &&
-          user?.collection === 'jewelers'
-        ) {
-          return { ...data, owner: req.user?.id };
-        }
-
-        if (
-          operation === 'update' &&
-          'status' in data &&
-          data.status !== originalDoc?.status
-        ) {
-          const isAdmin = user?.role === 'admin';
-          if (!isAdmin && data.status !== 'pending') {
-            throw new Error('Only admins can approve or reject businesses');
-          }
-        }
-
-        return data;
-      },
-    ],
+    beforeChange: [assignOwner, moderationWorkflow],
   },
   fields: [
     {
@@ -111,26 +52,16 @@ export const Businesses: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    {
-      name: 'status',
-      type: 'select',
-      defaultValue: 'draft',
-      label: 'Status',
-      admin: {
-        position: 'sidebar',
-      },
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Pending review', value: 'pending' },
-        { label: 'Approved', value: 'approved' },
-        { label: 'Rejected', value: 'rejected' },
-      ],
-    },
+    moderationStatusField,
     {
       name: 'owner',
       type: 'relationship',
       relationTo: 'jewelers',
       label: 'Owner',
+      access: {
+        create: adminsField,
+        update: adminsField,
+      },
       admin: {
         position: 'sidebar',
       },

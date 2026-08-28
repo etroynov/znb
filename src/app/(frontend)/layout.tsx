@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Script from 'next/script';
+import { JsonLdScript } from 'next-seo';
 import { Suspense } from 'react';
 import './global.css';
 import { HeaderSearch } from './_components/HeaderSearch';
@@ -20,18 +21,18 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             gtag('config', 'G-SP23XSNY6E');
           `}
         </Script>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Znajdź Jubilera',
-              url: 'https://znajdzjubilera.pl',
-              description:
-                'Katalog zaufanych studiów i sklepów jubilerskich w Polsce',
-              areaServed: 'PL',
-            }),
+        {/* JsonLdScript rather than OrganizationJsonLd: the typed component
+            has no areaServed prop and would silently drop it. */}
+        <JsonLdScript
+          scriptKey="site-organization"
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Znajdź Jubilera',
+            url: 'https://znajdzjubilera.pl',
+            description:
+              'Katalog zaufanych studiów i sklepów jubilerskich w Polsce',
+            areaServed: 'PL',
           }}
         />
       </head>

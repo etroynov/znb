@@ -42,7 +42,9 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
   }
 }
 
-export async function getAllEvents(options: QueryOptions = {}): Promise<Event[]> {
+export async function getAllEvents(
+  options: QueryOptions = {},
+): Promise<Event[]> {
   try {
     const { limit: rawLimit, offset = 0, sort = '-date' } = options;
 
@@ -55,7 +57,6 @@ export async function getAllEvents(options: QueryOptions = {}): Promise<Event[]>
       collection: COLLECTION_NAME,
       where: {
         _status: { equals: 'published' },
-        status: { equals: 'published' },
       },
       limit,
       page: offset ? Math.floor(offset / limit) + 1 : 1,

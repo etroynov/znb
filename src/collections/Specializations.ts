@@ -1,9 +1,16 @@
 import type { CollectionConfig } from 'payload';
+import { admins, anyone } from '@/access';
 
 export const Specializations: CollectionConfig = {
   slug: 'specializations',
   admin: {
     useAsTitle: 'name',
+  },
+  access: {
+    read: anyone,
+    create: admins,
+    update: admins,
+    delete: admins,
   },
   fields: [
     {

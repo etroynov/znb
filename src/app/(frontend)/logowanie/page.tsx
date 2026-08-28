@@ -1,42 +1,44 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
     const data = {
-      email: form.get("email"),
-      password: form.get("password"),
+      email: form.get('email'),
+      password: form.get('password'),
     };
 
     try {
-      const res = await fetch("/api/jewelers/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/jewelers/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!res.ok) {
         const err = await res.json();
-        setError(err.message || err.errors?.[0]?.message || "Invalid credentials");
+        setError(
+          err.message || err.errors?.[0]?.message || 'Invalid credentials',
+        );
         return;
       }
 
-      router.push("/moje-konto");
+      router.push('/moje-konto');
     } catch {
-      setError("Connection error. Please try again.");
+      setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -78,21 +80,19 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {error ? (
-          <p className="text-red-600 text-sm">{error}</p>
-        ) : null}
+        {error ? <p className="text-red-600 text-sm">{error}</p> : null}
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-black text-white rounded-lg px-4 py-2 disabled:opacity-50"
         >
-          {loading ? "Logging in..." : "Log in"}
+          {loading ? 'Logging in...' : 'Log in'}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-center text-gray-500">
-        Don't have an account?{" "}
+        Don't have an account?{' '}
         <Link href="/rejestracja" className="text-black underline">
           Register
         </Link>

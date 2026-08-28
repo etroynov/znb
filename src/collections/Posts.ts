@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { admins, or, published } from '@/access';
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -8,6 +9,12 @@ export const Posts: CollectionConfig = {
   versions: {
     drafts: true,
     maxPerDoc: 1,
+  },
+  access: {
+    read: or(admins, published),
+    create: admins,
+    update: admins,
+    delete: admins,
   },
   fields: [
     {

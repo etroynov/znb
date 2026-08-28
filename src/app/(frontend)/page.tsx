@@ -1,19 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLdScript } from 'next-seo';
 import { getPayload } from 'payload';
 import { combineWhereConstraints } from 'payload/shared';
 import config from '@/payload.config';
 import { BUSINESS_TYPE_LABELS, isBusinessType } from '@/utils/businessTypes';
-import type { Business } from '@/payload-types';
+import { relationName } from '@/utils/relationName';
 import { SearchForm } from './_components/SearchForm';
-
-function specializationName(
-  s: Business['specialization'],
-): string | null {
-  if (s == null) return null;
-  if (typeof s === 'object' && 'name' in s) return s.name;
-  return String(s);
-}
 
 interface Props {
   searchParams: Promise<{
@@ -105,10 +98,7 @@ export default async function HomePage({ searchParams }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-      />
+      <JsonLdScript scriptKey="jewelers-itemlist" data={schemaMarkup} />
 
       <div>
         <h1 className="text-4xl font-bold mb-2">Znajdź jubilera</h1>
@@ -139,38 +129,41 @@ export default async function HomePage({ searchParams }: Props) {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {jewelers.map((j) => (
-                <Link
-                  key={j.id}
-                  href={`/${j.slug}`}
-                  className="border rounded-lg p-4 hover:shadow-lg transition-shadow block"
-                >
-                  {j.logo && typeof j.logo === 'object' && j.logo.url ? (
-                    <img
-                      src={j.logo.url}
-                      alt={j.name || ''}
-                      width={64}
-                      height={64}
-                      loading="lazy"
-                      className="w-16 h-16 object-cover rounded mb-3"
-                    />
-                  ) : null}
-                  <span className="font-semibold">{j.name}</span>
-                  {j.specialization ? (
-                    <p className="text-sm text-gray-500">
-                      {specializationName(j.specialization)}
-                    </p>
-                  ) : null}
-                  {j.city ? (
-                    <p className="text-sm text-gray-500">{j.city}</p>
-                  ) : null}
-                  {j.type && isBusinessType(j.type) ? (
-                    <span className="inline-block mt-2 text-xs bg-gray-100 px-2 py-1 rounded">
-                      {BUSINESS_TYPE_LABELS[j.type]}
-                    </span>
-                  ) : null}
-                </Link>
-              ))}
+              {jewelers.map((j) => {
+                const specializationLabel = relationName(j.specialization);
+                return (
+                  <Link
+                    key={j.id}
+                    href={`/${j.slug}`}
+                    className="border rounded-lg p-4 hover:shadow-lg transition-shadow block"
+                  >
+                    {j.logo && typeof j.logo === 'object' && j.logo.url ? (
+                      <img
+                        src={j.logo.url}
+                        alt={j.name || ''}
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        className="w-16 h-16 object-cover rounded mb-3"
+                      />
+                    ) : null}
+                    <span className="font-semibold">{j.name}</span>
+                    {specializationLabel ? (
+                      <p className="text-sm text-gray-500">
+                        {specializationLabel}
+                      </p>
+                    ) : null}
+                    {j.city ? (
+                      <p className="text-sm text-gray-500">{j.city}</p>
+                    ) : null}
+                    {j.type && isBusinessType(j.type) ? (
+                      <span className="inline-block mt-2 text-xs bg-gray-100 px-2 py-1 rounded">
+                        {BUSINESS_TYPE_LABELS[j.type]}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
             </div>
           </>
         )}
